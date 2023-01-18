@@ -1,0 +1,13 @@
+The purpose of this Python package is to gather all of my functions and scripts that I use to
+process QCFFPI outputs in a single package that I can then import abd call from all of my other
+projects.
+
+This is to avoid having to store identical (or even worst: slightly different) versions of Python
+files in the directories corresponding to all of my different projects and therefore make my life
+*easier*.
+
+
+** IDEA **
+Could be worth making this a more general quantum chemistry package; functions like `AO_hamiltonian`
+could be used on data produced by any other quantum chemistry package; not just QCFFPI.
+Name the package `qcnico`

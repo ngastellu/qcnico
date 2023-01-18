@@ -1,0 +1,6 @@
+Metadata-Version: 2.1
+Name: qcnico
+Version: 0.1
+Summary: Set of functions to process quantum chemical dta and to read from QCFFPI output files.
+Author-email: Nicolas Gastellu <nicolas.gastellu@mail.mcgill.ca>
+Requires-Python: >=3.7

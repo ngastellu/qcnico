@@ -1,0 +1,11 @@
+[build-system]
+requires = ["setuptools>=65.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name= "qcnico"
+description = "Set of functions to process quantum chemical dta and to read from QCFFPI output files."
+version = "0.1"
+requires-python = ">=3.7"
+dependencies = ['python_version>="3.7"', 'numpy>="1.21"', 'matplotlib>="3.3"']
+authors = [{name = "Nicolas Gastellu", email="nicolas.gastellu@mail.mcgill.ca"}]
