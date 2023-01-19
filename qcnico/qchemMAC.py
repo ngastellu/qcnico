@@ -2,7 +2,7 @@ import numpy as np
 import scipy
 from scipy import sparse
 import scipy.sparse.linalg as sLA
-from find_edge_carbons import concave_hull
+from .find_edge_carbons import concave_hull
 
 # Set of functions that are useful to process QCFFPI data and extract 
 # quantum chemical properties of MAC structures.

@@ -1,5 +1,5 @@
 import numpy as np
-from graph_tools import adjacancy_matrix_sparse
+from .graph_tools import adjacency_matrix_sparse
 
 
 # Set of functions useful to extract data from QCFFPI calculations of MAC structures.
