@@ -444,6 +444,34 @@ def count_rings(coords,rcut,max_size=16):
 
     return ring_data
 
+def components(M):
+    '''Returns the connected components of a graph characterised by adjacency matrix M.
+    Stolen from the NetworkX library.'''
+
+    N = M.shape[0]
+    seen = set()
+    clusters = []
+    for i in range(N):
+        if i not in seen:
+            # do a breadth-first search starting from each unseen node
+            c = set()
+            nextlevel = {i}
+            while nextlevel:
+                thislevel = nextlevel
+                nextlevel = set()
+                for j in thislevel:
+                    if j not in c:
+                        c.add(j)
+                        nextlevel.update(M[j,:].nonzero()[0])
+            seen.update(c)
+            clusters.append(c)
+            return clusters
+
+
+
+
+
+
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
