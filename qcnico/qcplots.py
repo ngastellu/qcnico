@@ -86,3 +86,23 @@ def plot_MCO(pos,P,Pbar,n,dotsize=45.0,show_COM=False,show_rgyr=False,plot_dual=
         ax1.add_patch(loc_circle)
 
     plt.show()
+
+
+def plot_loc_discrep(iprs, rgyrs, energies, dotsize=10, cmap='viridis' ,usetex=True):
+
+    iprs = 1/np.sqrt(iprs)
+    
+    fig, ax1 = plt.subplots()
+
+    rcParams['font.size'] = 16
+
+    if usetex:
+        rcParams['text.usetex'] = True
+        rcParams['text.latex.preamble'] = r'\usepackage{amsmath}'
+
+    ye = ax1.scatter(iprs,rgyrs,marker='o',c=energies,s=dotsize, cmap=cmap)
+    cbar = fig.colorbar(ye, ax=ax1)
+    ax1.set_ylabel('$\sqrt{\langle R^2\\rangle - \langle R\\rangle^2}$')
+    ax1.set_xlabel('1/$\sqrt{IPR}$')
+    plt.show()
+

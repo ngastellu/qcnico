@@ -1,1 +1,1 @@
-from .mo_plotting import plot_MO
+from .qcplots import plot_MO
