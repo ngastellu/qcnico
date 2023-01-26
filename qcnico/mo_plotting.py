@@ -1,14 +1,21 @@
 
-def plot_MO(pos,MO_matrix,n,dotsize=45.0,show_COM=False,show_rgyr=False):
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib import rcParams
+
+
+def plot_MO(pos,MO_matrix,n,dotsize=45.0,show_COM=False,show_rgyr=False, usetex=True):
 
     if pos.shape[1] == 3:
         pos = pos[:,:2]
 
     psi = np.abs(MO_matrix[:,n])**2
 
-    rcParams['text.usetex'] = True
     rcParams['font.size'] = 16
-    rcParams['text.latex.preamble'] = r'\usepackage{amsmath}'
+
+    if usetex:
+        rcParams['text.usetex'] = True
+        rcParams['text.latex.preamble'] = r'\usepackage{amsmath}'
 
     #if plot_type == 'nanoribbon':
     #    #rcParams['figure.figsize'] = [30.259946/2,7/2]
@@ -42,7 +49,7 @@ def plot_MO(pos,MO_matrix,n,dotsize=45.0,show_COM=False,show_rgyr=False):
     plt.show()
 
 
-def plot_MCO(pos,P,Pbar,n,dotsize=45.0,show_COM=False,show_rgyr=False,plot_dual=False):
+def plot_MCO(pos,P,Pbar,n,dotsize=45.0,show_COM=False,show_rgyr=False,plot_dual=False,usetex=True):
 
     if pos.shape[1] == 3:
         pos = pos[:,:2]
@@ -54,9 +61,11 @@ def plot_MCO(pos,P,Pbar,n,dotsize=45.0,show_COM=False,show_rgyr=False,plot_dual=
         psi = np.abs(P[:,n])**2
         plot_title = '$|\langle\\varphi_n|\psi_{%d}\\rangle|^2$'%n
 
-    rcParams['text.usetex'] = True
     rcParams['font.size'] = 16
-    rcParams['text.latex.preamble'] = r'\usepackage{amsmath}'
+
+    if usetex:
+        rcParams['text.usetex'] = True
+        rcParams['text.latex.preamble'] = r'\usepackage{amsmath}'
 
     fig, ax1 = plt.subplots()
     #fig.set_size_inches(figsize,forward=True)

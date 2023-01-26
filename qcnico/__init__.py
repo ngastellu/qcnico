@@ -1,1 +1,1 @@
-from .mo_plots import plot_MO
+from .mo_plotting import plot_MO
