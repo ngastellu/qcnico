@@ -462,7 +462,12 @@ def components(M):
                 for j in thislevel:
                     if j not in c:
                         c.add(j)
-                        nextlevel.update(M[j,:].nonzero()[0])
+                        if isinstance(M, sparse.csc.csc_matrix):
+                            nextlevel.update(M.getcol(j).nonzero()[0])
+                        elif isinstance(M, sparse.csr.csr_matrix):
+                            nextlevel.update(M.getrow(j).nonzero()[1])
+                        else:
+                            nextlevel.update(M[j,:].nonzero()[0])
             seen.update(c)
             clusters.append(c)
             return clusters
