@@ -468,9 +468,9 @@ def components(M):
                             nextlevel.update(M.getrow(j).nonzero()[1])
                         else:
                             nextlevel.update(M[j,:].nonzero()[0])
-        seen.update(c)
-        clusters.append(c)
-        return clusters
+            seen.update(c)
+            clusters.append(c)
+    return clusters
 
 
 
