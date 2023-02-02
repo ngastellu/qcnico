@@ -350,11 +350,11 @@ def interference_matrix_MO(e,M,energy_lvls,gamL,gamR):
 
 def MO_com(pos, MO_matrix, n=None):
 
-    if n:
+    if np.any(n != None):
         psi = np.abs(MO_matrix[:,n]**2)
     else:
         psi = np.abs(MO_matrix**2)
-    return psi @ pos
+    return psi.T @ pos
 
 
 def MO_rgyr(pos,MO_matrix,n,center_of_mass=None):
@@ -362,7 +362,7 @@ def MO_rgyr(pos,MO_matrix,n,center_of_mass=None):
     psi = np.abs(MO_matrix[:,n])**2
 
     if np.all(center_of_mass) == None:
-        com = psi @ pos
+        com = psi.T @ pos
 
     else: #if center of mass has already been computed, do not recompute
         com = center_of_mass
