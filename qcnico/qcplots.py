@@ -2,9 +2,33 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
+from .plt_utils import setup_tex
 
 
-def plot_MO(pos,MO_matrix,n,dotsize=45.0,show_COM=False,show_rgyr=False, usetex=True):
+def plot_atoms(pos,dotsize=45.0,usetex=True,show=True):
+
+    if pos.shape[1] == 3:
+        pos = pos[:,:2]
+
+    rcParams['font.size'] = 16
+
+    if usetex:
+        setup_tex()
+
+    fig, ax = plt.subplots()
+
+    ax.scatter(*pos.T, 'k', s=dotsize)
+
+    ax.set_xlabel('$x$ [\AA]')
+    ax.set_ylabel('$y$ [\AA]')
+    ax.set_aspect('equal')
+
+    if show:
+        plt.show()
+
+
+
+def plot_MO(pos,MO_matrix,n,dotsize=45.0,show_COM=False,show_rgyr=False,usetex=True,show=True):
 
     if pos.shape[1] == 3:
         pos = pos[:,:2]
@@ -14,8 +38,7 @@ def plot_MO(pos,MO_matrix,n,dotsize=45.0,show_COM=False,show_rgyr=False, usetex=
     rcParams['font.size'] = 16
 
     if usetex:
-        rcParams['text.usetex'] = True
-        rcParams['text.latex.preamble'] = r'\usepackage{amsmath}'
+        setup_tex()
 
     #if plot_type == 'nanoribbon':
     #    #rcParams['figure.figsize'] = [30.259946/2,7/2]
@@ -46,10 +69,11 @@ def plot_MO(pos,MO_matrix,n,dotsize=45.0,show_COM=False,show_rgyr=False, usetex=
     #line below turns off x and y ticks 
     #ax1.tick_params(axis='both',which='both',bottom=False,top=False,right=False, left=False)
 
-    plt.show()
+    if show:
+        plt.show()
 
 
-def plot_MCO(pos,P,Pbar,n,dotsize=45.0,show_COM=False,show_rgyr=False,plot_dual=False,usetex=True):
+def plot_MCO(pos,P,Pbar,n,dotsize=45.0,show_COM=False,show_rgyr=False,plot_dual=False,usetex=True,show=True):
 
     if pos.shape[1] == 3:
         pos = pos[:,:2]
@@ -64,8 +88,7 @@ def plot_MCO(pos,P,Pbar,n,dotsize=45.0,show_COM=False,show_rgyr=False,plot_dual=
     rcParams['font.size'] = 16
 
     if usetex:
-        rcParams['text.usetex'] = True
-        rcParams['text.latex.preamble'] = r'\usepackage{amsmath}'
+        setup_tex()
 
     fig, ax1 = plt.subplots()
     #fig.set_size_inches(figsize,forward=True)
@@ -85,7 +108,8 @@ def plot_MCO(pos,P,Pbar,n,dotsize=45.0,show_COM=False,show_rgyr=False,plot_dual=
         loc_circle = plt.Circle(com, rgyr, fc='none', ec='r', ls='--', lw=1.0)
         ax1.add_patch(loc_circle)
 
-    plt.show()
+    if show:
+        plt.show()
 
 
 def plot_loc_discrep(iprs, rgyrs, energies, dotsize=10, cmap='viridis' ,usetex=True):
@@ -97,8 +121,7 @@ def plot_loc_discrep(iprs, rgyrs, energies, dotsize=10, cmap='viridis' ,usetex=T
     rcParams['font.size'] = 16
 
     if usetex:
-        rcParams['text.usetex'] = True
-        rcParams['text.latex.preamble'] = r'\usepackage{amsmath}'
+        setup_tex()
 
     ye = ax1.scatter(iprs,rgyrs,marker='o',c=energies,s=dotsize, cmap=cmap)
     cbar = fig.colorbar(ye, ax=ax1)
