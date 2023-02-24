@@ -30,16 +30,22 @@ class Molecule:
 
         self.label = label
         self.projdir = path.expanduser(project_dir)
+        self.N = -1
 
     def fetch_pos_MOs(self, prefix='MOs_', MOdir='MO_coefs'):
         lbl = self.label
         MOfile = path.join(self.projdir,MOdir,f'{prefix}{lbl}.dat')
         self.pos, self.M = read_MO_file(MOfile)
+        self.N = self.pos.shape[0]
 
     def fetch_energies(self, prefix='orb',orbdir='orbital_energies',convert_to_eV=True):
         lbl = self.label
         orbfile = path.join(self.projdir,orbdir,f'{prefix}{lbl}.dat')
-        self.energies = read_energies(orbfile)
+        self.energies = read_energies(orbfile,Natoms=self.N)
         if convert_to_eV:
             Ha2eV = 27.2114
             self.energies *= Ha2eV
+
+    def fetch_QCFFPI_data(self, rMO_kwargs, orb_kwargs):
+        fetch_pos_MOs(self, **rMO_kwargs)
+        fetch_energies(self, **orb_kwargs)

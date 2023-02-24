@@ -5,7 +5,7 @@ from matplotlib import rcParams
 from .plt_utils import setup_tex
 
 
-def plot_atoms(pos,dotsize=45.0,usetex=True,show=True):
+def plot_atoms(pos,dotsize=45.0,colour=None,show_cbar=False, usetex=True,show=True):
 
     if pos.shape[1] == 3:
         pos = pos[:,:2]
@@ -17,14 +17,22 @@ def plot_atoms(pos,dotsize=45.0,usetex=True,show=True):
 
     fig, ax = plt.subplots()
 
-    ax.scatter(*pos.T, 'k', s=dotsize)
+    ye = ax.scatter(*pos.T, c=colour, s=dotsize)
+
+    #remove whitespace around plot
+    fig.subplots_adjust(left=0,right=1,bottom=0,top=1)
+    ax.axis('tight')
 
     ax.set_xlabel('$x$ [\AA]')
     ax.set_ylabel('$y$ [\AA]')
     ax.set_aspect('equal')
 
+    if show_cbar:
+        cbar = fig.colorbar(ye,ax=ax,orientation='vertical')
+
     if show:
         plt.show()
+        plt.close()
 
 
 

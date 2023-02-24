@@ -30,7 +30,7 @@ def setup_tex(preamble_str=None):
         rcParams['text.latex.preamble'] = r'\usepackage{amsmath} \usepackage{amssymb}  \usepackage{bm}'
 
 
-def histogram(values,nbins=100,normalised=False,xlabel=None,ylabel=None,show=True,plt_kwargs=None):
+def histogram(values,nbins=100,normalised=False,xlabel=None,ylabel=None,log_counts=False,plt_objs=None,show=True,plt_kwargs=None):
     hist, bins = np.histogram(values,nbins)
     dx = bins[1:] - bins[:-1]
     centers = (bins[1:] + bins[:-1])/2
@@ -38,22 +38,33 @@ def histogram(values,nbins=100,normalised=False,xlabel=None,ylabel=None,show=Tru
 
     if normalised:
         hist /= values.size #sum of the bin counts will be equal to 1
+
+    # If integrating histogram w/in a pre-exisiting figure (as created by `plt.subplots()`),
+    # unpack plt_objs. Else, create figure.
+    if plt_objs:
+        fig, ax = plt_objs
+    else:
+        fig, ax = plt.subplots()
     
     if plt_kwargs: # Note: plt_kwargs is a dictionary of keyword arguments
         if 'color' in plt_kwargs:
-            plt.bar(centers, hist,align='center',width=dx,**plt_kwargs)
+            ax.bar(centers, hist,align='center',width=dx,**plt_kwargs)
         else:
-            plt.bar(centers, hist,align='center',width=dx,color='r',**plt_kwargs)
+            ax.bar(centers, hist,align='center',width=dx,color='r',**plt_kwargs)
     else:
-        plt.bar(centers, hist,align='center',width=dx,color='r')
+        ax.bar(centers, hist,align='center',width=dx,color='r')
     if xlabel:
-        plt.xlabel(xlabel)
+        ax.set_xlabel(xlabel)
     
     if ylabel:
-        plt.ylabel(ylabel)
+        ax.set_ylabel(ylabel)
     elif ylabel == None and normalised:
-        plt.ylabel('Normalised counts')
+        ax.set_ylabel('Normalised counts')
     else:
-        plt.ylabel('Counts')
+        ax.set_ylabel('Counts')
+
+    if log_counts:
+        ax.set_yscale('log')
+
     if show:
         plt.show()
