@@ -91,28 +91,34 @@ def read_Hao(Hao_file, Natoms):
     
     Hao = np.zeros((Natoms,Natoms),dtype=float)
 
-    with open(Hao_file) as fo:
-        lines = fo.readlines()[:Natoms]
-
     if Natoms <= 500:
         nlines_per_row = 1
     elif Natoms % 500 == 0:
         nlines_per_row = Natoms // 500
     else:
         nlines_per_row = 1 + (Natoms // 500)
-    
+
+    nlines_to_read = nlines_per_row * Natoms
+
+    with open(Hao_file) as fo:
+        lines = fo.readlines()[:nlines_to_read]
+
+    print(len(lines))
+ 
     for k, line in enumerate(lines):
         row_index = k // nlines_per_row
-        split_line = line.split()
+        split_line = line.lstrip().rstrip().split()
 
         if k % nlines_per_row == 0:
             counter = 0
             Hao[row_index,:500] = list(map(float, split_line))
             counter += 500
+            print(f'{row_index} {counter}')
         else:
             n = len(split_line)
             Hao[row_index,counter:counter+n] = list(map(float, split_line))
             counter += n
+            print(f'{row_index} {counter}')
 
     return Hao
 
