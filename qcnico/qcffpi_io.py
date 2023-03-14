@@ -65,7 +65,7 @@ def read_MO_file(infile, Natoms=None, MO_inds=None):
         return positions, MO_matrix
 
 
-def read_energies(orb_file,Natoms=-1):
+def read_energies(orb_file,Natoms=-1,convert2eV=True):
     """Reads energies from QCCFPI output file `orb_file` and returns them in an array.
     
     *** ASSUMES ENERGIES ARE SORTED *** 
@@ -83,10 +83,15 @@ def read_energies(orb_file,Natoms=-1):
     else:
         nlines_to_read = Natoms
 
-    return np.array(list(map(float,[l.split()[1] for l in lines[:nlines_to_read]])))
+    if convert2eV:
+        Ha2eV = 27.2114
+        return np.array(list(map(float,[l.split()[1] for l in lines[:nlines_to_read]]))) * Ha2eV
+
+    else:
+        return np.array(list(map(float,[l.split()[1] for l in lines[:nlines_to_read]])))
 
 
-def read_Hao(Hao_file, Natoms):
+def read_Hao(Hao_file, Natoms, convert2eV=True):
     """Reads AO Hamiltonian from Hao.dat file output by QCFFPI."""
     
     Hao = np.zeros((Natoms,Natoms),dtype=float)
@@ -113,12 +118,14 @@ def read_Hao(Hao_file, Natoms):
             counter = 0
             Hao[row_index,:500] = list(map(float, split_line))
             counter += 500
-            print(f'{row_index} {counter}')
         else:
             n = len(split_line)
             Hao[row_index,counter:counter+n] = list(map(float, split_line))
             counter += n
-            print(f'{row_index} {counter}')
+
+    if convert2eV:
+        Ha2eV = 27.2114
+        Hao *= Ha2eV
 
     return Hao
 

@@ -38,13 +38,14 @@ class Molecule:
         self.pos, self.M = read_MO_file(MOfile)
         self.N = self.pos.shape[0]
 
-    def fetch_energies(self, prefix='orb',orbdir='orbital_energies',convert_to_eV=True):
+    def fetch_energies(self, prefix='orb',orbdir='orbital_energies',conv2eV=True,eFzero=True):
         lbl = self.label
         orbfile = path.join(self.projdir,orbdir,f'{prefix}{lbl}.dat')
-        self.energies = read_energies(orbfile,Natoms=self.N)
-        if convert_to_eV:
-            Ha2eV = 27.2114
-            self.energies *= Ha2eV
+        self.energies = read_energies(orbfile,Natoms=self.N,convert2eV=conv2eV)
+        if eFzero:
+            N = self.energies.shape[0]
+            eF = 0.5*(self.energies[N//2 - 1] + self.energies[N//2])
+            self.energies -= eF
 
     def fetch_QCFFPI_data(self, rMO_kwargs, orb_kwargs):
         fetch_pos_MOs(self, **rMO_kwargs)
