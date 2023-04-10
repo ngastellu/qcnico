@@ -107,8 +107,6 @@ def read_Hao(Hao_file, Natoms, convert2eV=True):
 
     with open(Hao_file) as fo:
         lines = fo.readlines()[:nlines_to_read]
-
-    print(len(lines))
  
     for k, line in enumerate(lines):
         row_index = k // nlines_per_row

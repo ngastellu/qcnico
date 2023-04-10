@@ -38,7 +38,7 @@ class Molecule:
         self.pos, self.M = read_MO_file(MOfile)
         self.N = self.pos.shape[0]
 
-    def fetch_energies(self, prefix='orb',orbdir='orbital_energies',conv2eV=True,eFzero=True):
+    def fetch_energies(self, prefix='orb_energy_',orbdir='orbital_energies',conv2eV=True,eFzero=True):
         lbl = self.label
         orbfile = path.join(self.projdir,orbdir,f'{prefix}{lbl}.dat')
         self.energies = read_energies(orbfile,Natoms=self.N,convert2eV=conv2eV)

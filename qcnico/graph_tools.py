@@ -473,7 +473,9 @@ def components(M):
     return clusters
 
 
-
+def pairwise_dists(pos):
+    """Quick and dirty method for computing pairwise distance (in Euclidean space) between points in `pos` array."""
+    return np.linalg.norm(pos[None,:] - pos[:,None], axis=2)
 
 
 

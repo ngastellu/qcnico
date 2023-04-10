@@ -5,7 +5,7 @@ from matplotlib import rcParams
 from .plt_utils import setup_tex
 
 
-def plot_atoms(pos,dotsize=45.0,colour=None,show_cbar=False, usetex=True,show=True):
+def plot_atoms(pos,dotsize=45.0,colour='k',show_cbar=False, usetex=True,show=True, plt_objs=None, return_plt_objs=False):
 
     if pos.shape[1] == 3:
         pos = pos[:,:2]
@@ -14,14 +14,17 @@ def plot_atoms(pos,dotsize=45.0,colour=None,show_cbar=False, usetex=True,show=Tr
 
     if usetex:
         setup_tex()
-
-    fig, ax = plt.subplots()
+        
+    if plt_objs == None:
+        fig, ax = plt.subplots()
+    else:
+        fig, ax = plt_objs
 
     ye = ax.scatter(*pos.T, c=colour, s=dotsize)
 
-    #remove whitespace around plot
-    fig.subplots_adjust(left=0,right=1,bottom=0,top=1)
-    ax.axis('tight')
+    #uncomment below to remove whitespace around plot
+    #fig.subplots_adjust(left=0,right=1,bottom=0,top=1)
+    #ax.axis('tight')
 
     ax.set_xlabel('$x$ [\AA]')
     ax.set_ylabel('$y$ [\AA]')
@@ -32,7 +35,10 @@ def plot_atoms(pos,dotsize=45.0,colour=None,show_cbar=False, usetex=True,show=Tr
 
     if show:
         plt.show()
-        plt.close()
+        #plt.close()
+
+    if return_plt_objs: # should not be True if `show=True`
+        return fig, ax
 
 
 
