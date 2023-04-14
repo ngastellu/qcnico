@@ -3,7 +3,7 @@ from matplotlib import rcParams, cm
 import matplotlib.pyplot as plt
 
 
-def get_cm(vals, cmap_str, max_val=0.7):
+def get_cm(vals, cmap_str, max_val=0.7, min_val=0.0):
     '''Creates a list of colours from an array of numbers. Can be used to colour-code curves corresponding to
         different values of a given paramter.'''
     if not isinstance(vals, np.ndarray):
