@@ -10,7 +10,7 @@ def get_cm(vals, cmap_str, max_val=0.7, min_val=0.0):
         vals = np.array(vals)
     sorted_vals = np.sort(vals)
     delta = sorted_vals[-1] - sorted_vals[0]
-    x = max_val * (vals - sorted_vals[0]) / delta
+    x = min_val + ( (max_val-min_val) * (vals - sorted_vals[0]) / delta )
     if isinstance(cmap_str, str):
         if cmap_str[:3] == 'cm.':
             cmap = eval(cmap_str)
