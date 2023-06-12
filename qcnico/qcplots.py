@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
 from .plt_utils import setup_tex
+from .qchemMAC import MO_rgyr, MCO_com, MCO_rgyr
 
 
 def plot_atoms(pos,dotsize=45.0,colour='k',show_cbar=False, usetex=True,show=True, plt_objs=None, return_plt_objs=False):

@@ -366,12 +366,13 @@ def MO_rgyr(pos,MO_matrix,n,center_of_mass=None):
 
     else: #if center of mass has already been computed, do not recompute
         com = center_of_mass
+        print(com)
 
     R_squared = (pos*pos).sum(axis=-1) #fast way to compute square length of all position vectors
     R_squared_avg = R_squared @ psi
 
     #return np.sqrt(R_squared_avg - (com @ com))
-    return np.sqrt(R_squared_avg - (com*com).sum(1))
+    return np.sqrt(R_squared_avg - (com*com).sum(0))
 
 
 def MCO_com(pos, P, Pbar, n):

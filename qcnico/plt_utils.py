@@ -33,6 +33,7 @@ def setup_tex(preamble_str=None):
 def histogram(values,nbins=100,normalised=False,xlabel=None,ylabel=None,log_counts=False,plt_objs=None,show=True,plt_kwargs=None):
     hist, bins = np.histogram(values,nbins)
     dx = bins[1:] - bins[:-1]
+    print(dx)
     centers = (bins[1:] + bins[:-1])/2
     hist = hist.astype(np.float64)
 
