@@ -350,29 +350,31 @@ def interference_matrix_MO(e,M,energy_lvls,gamL,gamR):
 
 def MO_com(pos, MO_matrix, n=None):
 
-    if np.any(n != None):
+    if n is None:
         psi = np.abs(MO_matrix[:,n]**2)
     else:
         psi = np.abs(MO_matrix**2)
     return psi.T @ pos
 
 
-def MO_rgyr(pos,MO_matrix,n,center_of_mass=None):
+def MO_rgyr(pos,MO_matrix,n=None,center_of_mass=None):
 
-    psi = np.abs(MO_matrix[:,n])**2
+    if n is None:
+        psi = np.abs(MO_matrix**2)
+    else:
+        psi = np.abs(MO_matrix[:,n])**2
 
-    if np.all(center_of_mass) == None:
+    if center_of_mass is None:
         com = psi.T @ pos
 
     else: #if center of mass has already been computed, do not recompute
         com = center_of_mass
-        print(com)
 
     R_squared = (pos*pos).sum(axis=-1) #fast way to compute square length of all position vectors
     R_squared_avg = R_squared @ psi
 
     #return np.sqrt(R_squared_avg - (com @ com))
-    return np.sqrt(R_squared_avg - (com*com).sum(0))
+    return np.sqrt(R_squared_avg - (com*com).sum(-1))
 
 
 def MCO_com(pos, P, Pbar, n):
@@ -399,24 +401,6 @@ def MCO_rgyr(pos,P,Pbar,n,center_of_mass=None):
     R_squared_avg = R_squared @ psi
 
     return np.sqrt(R_squared_avg - (com @ com))
-
-
-def all_rgyrs(pos,MO_matrix,centers_of_mass=None):
-
-    psis = np.abs(MO_matrix)**2
-
-    if np.all(centers_of_mass) == None:
-        coms = (psis.T) @ pos
-
-    else: #if centers of mass have already been computed, do not recompute
-        coms = centers_of_mass
-
-    R_squared = (pos*pos).sum(-1)
-    R_squared_avg = R_squared @ psis
-
-    coms_squared = (coms*coms).sum(-1)
-
-    return np.sqrt(R_squared_avg - coms_squared)
 
 
 def all_rgyrs_MCO(pos,P,Pbar,centers_of_mass=None):

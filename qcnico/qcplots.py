@@ -127,11 +127,14 @@ def plot_MCO(pos,P,Pbar,n,dotsize=45.0,show_COM=False,show_rgyr=False,plot_dual=
         plt.show()
 
 
-def plot_loc_discrep(iprs, rgyrs, energies, dotsize=10, cmap='viridis' ,usetex=True):
+def plot_loc_discrep(iprs, rgyrs, energies, dotsize=10, cmap='viridis' ,usetex=True, show=True, plt_objs=None, show_cbar=True):
 
     iprs = 1/np.sqrt(iprs)
     
-    fig, ax1 = plt.subplots()
+    if plt_objs is None:
+        fig, ax1 = plt.subplots()
+    else:
+        fig, ax1 = plt_objs
 
     rcParams['font.size'] = 16
 
@@ -139,8 +142,10 @@ def plot_loc_discrep(iprs, rgyrs, energies, dotsize=10, cmap='viridis' ,usetex=T
         setup_tex()
 
     ye = ax1.scatter(iprs,rgyrs,marker='o',c=energies,s=dotsize, cmap=cmap)
-    cbar = fig.colorbar(ye, ax=ax1)
+    if show_cbar:
+        cbar = fig.colorbar(ye, ax=ax1)
     ax1.set_ylabel('$\sqrt{\langle R^2\\rangle - \langle R\\rangle^2}$')
     ax1.set_xlabel('1/$\sqrt{IPR}$')
-    plt.show()
+    if show:
+        plt.show()
 

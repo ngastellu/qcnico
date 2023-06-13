@@ -30,12 +30,14 @@ def setup_tex(preamble_str=None):
         rcParams['text.latex.preamble'] = r'\usepackage{amsmath} \usepackage{amssymb}  \usepackage{bm}'
 
 
-def histogram(values,nbins=100,normalised=False,xlabel=None,ylabel=None,log_counts=False,plt_objs=None,show=True,plt_kwargs=None):
+def histogram(values,nbins=100,normalised=False,xlabel=None,ylabel=None,log_counts=False,plt_objs=None,show=True,plt_kwargs=None,print_dx=True):
     hist, bins = np.histogram(values,nbins)
     dx = bins[1:] - bins[:-1]
-    print(dx)
     centers = (bins[1:] + bins[:-1])/2
     hist = hist.astype(np.float64)
+
+    if print_dx:
+        print(f"[plt_utils.histogram] dx = {np.mean(dx)}")
 
     if normalised:
         hist /= values.size #sum of the bin counts will be equal to 1
