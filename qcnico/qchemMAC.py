@@ -428,3 +428,43 @@ def all_rgyrs_MCO(pos,P,Pbar,centers_of_mass=None):
     coms_squared = (coms*coms).sum(-1)
 
     return np.sqrt(R_squared_avg - coms_squared)
+
+def slater_2pz(R, XX, YY, z=0.5):
+    """Slater-type 2pz orbital forcarbon at position `R` (2D vector) evalutaed on a 
+    grid defined by `XX` and `YY`, `z` angstroms above the plane defined by the 
+    MAC/graphene sheet.
+    Exponent `xi` obtained from: https://doi.org/10.1063/1.1733573."""
+    
+    xi = 1.5679
+    a0 = 0.529 #Bohr radius in angstroms
+
+    N = np.sqrt(((xi/a0)**5)/np.pi)
+    return N*z*np.exp( -(xi/a0) * np.sqrt( (XX-R[0])**2 + (YY-R[1])**2 + z**2 ) )
+
+def gridify_MO(pos, M, n, XX, YY, eps=2e-2):
+    """Takes MO represented in AO space and represents it in real space, assuming all AOs are Slater type 
+    orbitals (STOs) for 2pz carbon (see `slater_2pz` function above).
+    
+    Parameters
+    ----------
+    pos: `np.ndarray`, shape=(N,2)
+        Atomic positions
+    M: `np.ndarray`, shape=(N,m)
+        (Subset of) MO matrix, where `M[:,j]` represents the jth MO in AO space.
+    n: `int`
+        MO index
+    XX, YY: `np.ndarray`
+        X and Y meshes of the real-space grid onto which the MO is represented.
+    """
+    psi = M[:,n]
+
+    #ignore atoms with very low density (significantly reduce number of sites)
+    nnz_inds = (np.abs(psi) > eps).nonzero()[0]
+    psi = psi[nnz_inds]
+    pos = pos[nnz_inds,:]
+    ye = sum( (c*slater_2pz(r,XX,YY) for (c,r) in zip(psi,pos)) )
+    print(ye.nonzero()[0])
+    return np.abs( ye )**2
+
+
+
