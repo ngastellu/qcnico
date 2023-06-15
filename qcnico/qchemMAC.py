@@ -429,7 +429,7 @@ def all_rgyrs_MCO(pos,P,Pbar,centers_of_mass=None):
 
     return np.sqrt(R_squared_avg - coms_squared)
 
-def slater_2pz(R, XX, YY, z=0.5):
+def slater_2pz(R, XX, YY, z=None):
     """Slater-type 2pz orbital forcarbon at position `R` (2D vector) evalutaed on a 
     grid defined by `XX` and `YY`, `z` angstroms above the plane defined by the 
     MAC/graphene sheet.
@@ -438,10 +438,15 @@ def slater_2pz(R, XX, YY, z=0.5):
     xi = 1.5679
     a0 = 0.529 #Bohr radius in angstroms
 
+    # if z is not specified; pick z that maximises the wavefunction
+    if z is None:
+        z = a0/xi
+
+
     N = np.sqrt(((xi/a0)**5)/np.pi)
     return N*z*np.exp( -(xi/a0) * np.sqrt( (XX-R[0])**2 + (YY-R[1])**2 + z**2 ) )
 
-def gridify_MO(pos, M, n, XX, YY, eps=2e-2):
+def realspace_MO(pos, M, n, XX, YY, eps=2e-2):
     """Takes MO represented in AO space and represents it in real space, assuming all AOs are Slater type 
     orbitals (STOs) for 2pz carbon (see `slater_2pz` function above).
     
@@ -460,11 +465,30 @@ def gridify_MO(pos, M, n, XX, YY, eps=2e-2):
 
     #ignore atoms with very low density (significantly reduce number of sites)
     nnz_inds = (np.abs(psi) > eps).nonzero()[0]
+    print(pos.shape)
+    print(nnz_inds.shape)
     psi = psi[nnz_inds]
     pos = pos[nnz_inds,:]
-    ye = sum( (c*slater_2pz(r,XX,YY) for (c,r) in zip(psi,pos)) )
-    print(ye.nonzero()[0])
-    return np.abs( ye )**2
+    f = sum(((c**2)*(slater_2pz(r,XX,YY)**2) for (c,r) in zip(psi,pos)))
+    print(f.shape)
+    return np.abs( f )**2
 
 
-
+def gridifyMO(pos,M,n,nbins,return_edges=True):
+    x = pos.T[0]
+    y = pos.T[1]
+    psi = np.abs(M[:,n])**2
+    #_, xedges, yedges = np.histogram2d(x,y,nbins)
+    xedges = np.linspace(np.min(x)-0.1,np.max(x)+0.1,nbins+1,endpoint=True)
+    yedges = np.linspace(np.min(y)-0.1,np.max(y)+0.1,nbins+1,endpoint=True)
+    rho = np.zeros((nbins,nbins))
+    for c, r in zip(psi,pos):
+        x, y, _ = r
+        i = np.sum(x > xedges) - 1
+        j = np.sum(y > yedges) - 1
+        rho[j,i] += c
+    
+    if return_edges:
+        return rho, xedges, yedges
+    else:
+        return rho

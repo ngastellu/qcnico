@@ -43,7 +43,7 @@ def plot_atoms(pos,dotsize=45.0,colour='k',show_cbar=False, usetex=True,show=Tru
 
 
 
-def plot_MO(pos,MO_matrix,n,dotsize=45.0,show_COM=False,show_rgyr=False,usetex=True,show=True):
+def plot_MO(pos,MO_matrix,n,dotsize=45.0,show_COM=False,show_rgyr=False,usetex=True,show=True, plt_objs=None):
 
     if pos.shape[1] == 3:
         pos = pos[:,:2]
@@ -64,7 +64,10 @@ def plot_MO(pos,MO_matrix,n,dotsize=45.0,show_COM=False,show_rgyr=False,usetex=T
     #    print('Invalid plot type. Using default square plot type.')
     #    figsize = [4,4]
 
-    fig, ax1 = plt.subplots()
+    if plt_objs is None:
+        fig, ax1 = plt.subplots()
+    else:
+        fig, ax1 = plt_objs
     #fig.set_size_inches(figsize,forward=True)
 
     ye = ax1.scatter(pos.T[0,:],pos.T[1,:],c=psi,s=dotsize,cmap='plasma')
