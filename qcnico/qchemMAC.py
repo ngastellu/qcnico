@@ -472,9 +472,8 @@ def realspace_MO(pos, M, n, XX, YY, eps=2e-2):
     f = sum(((c**2)*(slater_2pz(r,XX,YY)**2) for (c,r) in zip(psi,pos)))
     print(f.shape)
     return np.abs( f )**2
-
-
-def gridifyMO(pos,M,n,nbins,return_edges=True):
+    
+def gridifyMO(pos,M,n,nbins,pad_rho,return_edges=True):
     x = pos.T[0]
     y = pos.T[1]
     psi = np.abs(M[:,n])**2
@@ -486,9 +485,16 @@ def gridifyMO(pos,M,n,nbins,return_edges=True):
         x, y, _ = r
         i = np.sum(x > xedges) - 1
         j = np.sum(y > yedges) - 1
-        rho[j,i] += c
+        rho[j,i] += c # <----- !!!! caution, 1st index labels y, 2nd labels x
     
-    if return_edges:
-        return rho, xedges, yedges
+    if pad_rho:
+        # Pad rho with zeros to detect peaks on the edges (hacky, I know)
+        padded_rho = np.zeros((nbins+2,nbins+2))
+        padded_rho[1:-1,1:-1] = rho
+        rho_out = padded_rho
     else:
-        return rho
+        rho_out = rho
+    if return_edges:
+        return rho_out, xedges, yedges
+    else:
+        return rho_out
