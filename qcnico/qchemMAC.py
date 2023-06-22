@@ -473,6 +473,7 @@ def realspace_MO(pos, M, n, XX, YY, eps=2e-2):
     print(f.shape)
     return np.abs( f )**2
     
+        
 def gridifyMO(pos,M,n,nbins,pad_rho,return_edges=True):
     x = pos.T[0]
     y = pos.T[1]
@@ -492,6 +493,22 @@ def gridifyMO(pos,M,n,nbins,pad_rho,return_edges=True):
         padded_rho = np.zeros((nbins+2,nbins+2))
         padded_rho[1:-1,1:-1] = rho
         rho_out = padded_rho
+
+        # Make sure the bin edges are also updated
+        dx = np.diff(xedges)[0] #all dxs should be the same since xedges is created using np.linspace
+        dy = np.diff(yedges)[0] #idem for dys
+        xedges_padded = np.zeros(xedges.shape[0]+2)
+        yedges_padded = np.zeros(yedges.shape[0]+2)
+        xedges_padded[0] = xedges[0] - dx
+        xedges_padded[-1] = xedges[-1] + dx
+        yedges_padded[0] = yedges[0] - dy
+        yedges_padded[-1] = yedges[-1] + dy
+        xedges_padded[1:-1] = xedges
+        yedges_padded[1:-1] = yedges
+
+        xedges = xedges_padded
+        yedges = yedges_padded
+
     else:
         rho_out = rho
     if return_edges:
