@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import numpy as np
+from itertools import islice
+from os import path
 
 def get_coords(infile, dump=True):
 
@@ -229,3 +231,39 @@ def get_lammps_frame(dump, nframe, return_symbols=False):
     else:
         print('yo')
         return pos
+    
+
+def write_subsampled_trajfile(dump, start, end, step):
+    """Keep only a subset of frames from a trajectory file and write them to a new trajectory file."""
+    nb_non_coord_lines = 9
+    prefix = path.basename(dump).split('.')[0]
+    dumpdir = path.dirname(dump)
+    outfile = path.join(dumpdir, prefix + f'_frames_{start}-{end}-{step}.lammpstrj')
+    with open(dump) as fo:
+        for n in range(3): fo.readline()
+        Natoms = int(fo.readline().lstrip().rstrip())
+        nlines_per_frame = Natoms + nb_non_coord_lines
+        fo.seek(0)
+        n = start
+        fp = open(outfile,'w')
+        for i in range(n*nlines_per_frame): fo.readline() #get to 1st desired frame
+        while n <= end:
+            print("n = ", n,flush=True)
+            first=True
+            second = False
+            ct = 0
+            for i in range(nlines_per_frame):
+                ct += 1
+                l = fo.readline()
+                fp.write(l)
+                if second:
+                    print('~~ L2: ', l)
+                    second = False
+                if first:  
+                    print('** L1: ', l)
+                    first = False
+                    second = True
+            n += step
+            print("NLINES = ", ct)
+            for i in range((step-1) * nlines_per_frame): fo.readline()
+        
