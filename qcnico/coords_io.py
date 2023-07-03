@@ -233,12 +233,13 @@ def get_lammps_frame(dump, nframe, return_symbols=False):
         return pos
     
 
-def write_subsampled_trajfile(dump, start, end, step):
+def write_subsampled_trajfile(dump, start, end, step, outfile=None):
     """Keep only a subset of frames from a trajectory file and write them to a new trajectory file."""
     nb_non_coord_lines = 9
     prefix = path.basename(dump).split('.')[0]
     dumpdir = path.dirname(dump)
-    outfile = path.join(dumpdir, prefix + f'_frames_{start}-{end}-{step}.lammpstrj')
+    if outfile is None:
+        outfile = path.join(dumpdir, prefix + f'_frames_{start}-{end}-{step}.lammpstrj')
     with open(dump) as fo:
         for n in range(3): fo.readline()
         Natoms = int(fo.readline().lstrip().rstrip())
