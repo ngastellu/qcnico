@@ -3,6 +3,7 @@
 import numpy as np
 from itertools import islice
 from os import path
+import subprocess as sbp
 
 def get_coords(infile, dump=True):
 
@@ -206,7 +207,7 @@ def LAMMPS2XSF(dump):
     from dump2xsf import dump2xsf
     dump2xsf(dump)
 
-def get_lammps_frame(dump, nframe, return_symbols=False):
+def get_lammps_frame(dump, nframe, return_symbols=False, step=1, frame0_index=0):
     from itertools import islice
     '''Fetches the coordinates corresponding to frame number `nframe` of the LAMMPS MD simulation
     contained in the dump file `dump`.
@@ -214,6 +215,7 @@ def get_lammps_frame(dump, nframe, return_symbols=False):
     separate array.'''
 
     nb_non_coord_lines = 9
+    nframe = int((nframe-frame0_index)/step)
 
     print('ye')
 
@@ -231,7 +233,19 @@ def get_lammps_frame(dump, nframe, return_symbols=False):
     else:
         print('yo')
         return pos
-    
+
+
+def get_lammps_frame_bash(dump,nframe,Natoms,step=1,frame0=0):
+    nb_non_coord_lines = 9
+    nlines_per_frame = nb_non_coord_lines + Natoms
+    nframe = int((nframe - frame0) / step) + 1
+    with open(dump) as fo:
+        p1 = sbp.Popen(f'head -n {nlines_per_frame * nframe}', stdin=fo, stdout=sbp.PIPE, shell=True)
+        poslines = sbp.Popen(f'tail -n {Natoms}',stdin=p1.stdout,stdout=sbp.PIPE,shell=True).communicate()[0].decode()
+        pos = [list(map(float,l.rstrip().lstrip().split()[1:4])) for l in poslines.split('\n')[:-1]]
+        pos = np.array(pos)
+    return pos
+
 
 def write_subsampled_trajfile(dump, start, end, step, outfile=None):
     """Keep only a subset of frames from a trajectory file and write them to a new trajectory file."""
