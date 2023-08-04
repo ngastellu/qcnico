@@ -10,7 +10,7 @@ dump = '/Users/nico/Desktop/simulation_outputs/MO_dynamics/40x40/subsampled_traj
 frames = np.arange(10000,50000,10000)
 
 for n in frames:
-    print("********** {n} **********")
+    print(f"********** {n} **********")
     start = perf_counter()
     pos1 = get_lammps_frame(dump, n, step=10, frame0_index=10000)
     end = perf_counter()
@@ -18,7 +18,7 @@ for n in frames:
     print(f"Python method took {end - start} seconds.")
 
     start = perf_counter()
-    pos2 = get_lammps_frame(dump, n, step=10, frame0_index=10000)
+    pos2 = get_lammps_frame_bash(dump, n, step=10, frame0=10000)
     end = perf_counter()
 
     print(f"Bash method took {end - start} seconds.")
