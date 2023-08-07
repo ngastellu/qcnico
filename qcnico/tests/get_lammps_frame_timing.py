@@ -7,7 +7,8 @@ from qcnico.coords_io import get_lammps_frame, get_lammps_frame_bash
 
 
 dump = '/Users/nico/Desktop/simulation_outputs/MO_dynamics/40x40/subsampled_trajfiles/300K_norotate_10000-100000-10.lammpstrj'
-frames = np.arange(10000,50000,10000)
+frames = np.arange(10000,50000,30000)
+Natoms = 57717
 
 for n in frames:
     print(f"********** {n} **********")
@@ -18,7 +19,7 @@ for n in frames:
     print(f"Python method took {end - start} seconds.")
 
     start = perf_counter()
-    pos2 = get_lammps_frame_bash(dump, n, step=10, frame0=10000)
+    pos2 = get_lammps_frame_bash(dump, n, Natoms, step=10, frame0=10000)
     end = perf_counter()
 
     print(f"Bash method took {end - start} seconds.")

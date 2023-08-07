@@ -167,8 +167,8 @@ def pad_zeros(arr, axis=0, where='end', nadd=None, upto=None, tonext=None,
         raise Exception("illegal `where` arg: %s" %where)
     
 
-def vdos(vel, dt=1.0, m=None, full_out=False, area=1.0, window=True,
-         npad=1, tonext=False, mirr=False):
+def vdos(vel, dt=1.0, m=None, area=1.0, window=True,
+         npad=1, tonext=True):
     """Phonon DOS by FFT of the VACF or direct FFT of atomic velocities.
 
     Integral area is normalized to `area`. It is possible (and recommended) to

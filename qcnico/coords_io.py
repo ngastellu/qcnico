@@ -234,6 +234,47 @@ def get_lammps_frame(dump, nframe, return_symbols=False, step=1, frame0_index=0)
         print('yo')
         return pos
 
+def stream_lammps_traj(dump, start, end, step=1, nb_non_coord_lines=9,stream_cols=slice(1,4), start_file=0, step_file=1):
+    """Parse a LAMMPS MD trajectory contained in dump file `dump` using islice and a yield statement to save time.
+    `stream_cols` argument corresponds to the indices of `line.split()` which are desired.
+    Args `start_file` and `step_file` are used to account for the fact that the file being read may not necessarily 
+    start at frame 0, or have a unit step between sampled frames; this way arguments `start`, `end`, and `frame` correspond 
+    to the  ACTUAL frame indices/step desired WITHOUT needing to account for the way the file is put together."""
+    with open(dump) as fo:
+        for n in range(3): fo.readline()
+        Natoms = int(fo.readline().lstrip())
+
+        nlines_per_frame = Natoms + nb_non_coord_lines
+        nframes = (end - start + 1) // step
+
+        if stream_cols.step is None:
+            ncoords = stream_cols.stop - stream_cols.start
+        else:
+            ncoords = (stream_cols.stop - stream_cols.start) // stream_cols.step
+
+        traj_data = np.zeros((Natoms,ncoords))
+
+        # Renormalise `start` and `step` to account for the fact that the file may have its own non-trivial start and step
+        start = (start - start_file) // step_file
+        step = step // step_file
+
+        fo.seek(0)
+        cnt = 0
+        lines_gen = islice(fo,start*nlines_per_frame, (start+1)*nlines_per_frame)
+        relevant_lines = [l.rstrip().split() for l in list(lines_gen)]
+        traj_data = np.array([list( map(float, l[stream_cols]) ) for l in relevant_lines[nb_non_coord_lines:]])
+            
+        yield traj_data
+
+        cnt += 1
+                
+        while cnt <= nframes:
+            lines_gen = islice(fo, (step-1)*nlines_per_frame, (step)*nlines_per_frame)
+            relevant_lines = [l.rstrip().split() for l in list(lines_gen)]
+            traj_data = np.array([list( map(float, l[stream_cols]) ) for l in relevant_lines[nb_non_coord_lines:]])
+            yield traj_data
+            cnt += 1
+       
 
 def get_lammps_frame_bash(dump,nframe,Natoms,step=1,frame0=0):
     nb_non_coord_lines = 9
