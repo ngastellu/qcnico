@@ -1,9 +1,6 @@
 #!/usr/bin/env pythonw
 
 import numpy as np
-#from scipy import sparse
-from graph_tools import adjacency_matrix_sparse
-from inputoutput_nico import get_coords, write_xyz
 
 def add_H(atom,neigh1,neigh2):
     rCH = 1.086#[angstrom] sp2 C-H distance
@@ -38,6 +35,9 @@ def add_H_inverted(atom,neigh1,neigh2):
 
 ####### MAIN #######
 if __name__ == '__main__':
+    #from scipy import sparse
+    from .graph_tools import adjacency_matrix_sparse
+    from .coords_io import get_coords, write_xyz
 
     input_file = 'protonated_pCNN_MAC_4x4.xyz'
 

@@ -37,9 +37,8 @@ def xsf2xyz_MAC(filepath):
     write_xyz(atoms,symbols,outfile)
 
 
-def read_xyz(filepath):
-    """Returns the coordinates of all atoms stored in a .xyz file. It assumes all atoms are of the same
-    element and thus does not keep track of the chemical symbols in the input file.
+def read_xyz(filepath,return_symbols=False):
+    """Returns the coordinates (and symbols, optionally) of all atoms stored in a .xyz file.
 
     Parameter
     ----------
@@ -48,16 +47,32 @@ def read_xyz(filepath):
 
     Output
     ------
-    coords: `ndarray`, shape=(N,3)
+    coords: `ndarray`, shape=(N,3), dtype=`float`
         Array of coordinates stored in the input file.
+    symbols: `ndarray`, shape=(N,), dtype=`str`
+        Symbols corresponding to the atoms whose coordinates are stored in the input file.
     """
     with open(filepath) as fo:
         natoms = int(fo.readline().rstrip().lstrip().lstrip('#'))
         fo.readline() #skip 2nd line
         lines = fo.readlines()
-    coords = np.array([list(map(float,line.lstrip().rstrip().split()[1:])) for line in lines])
 
-    return coords
+    if return_symbols:
+        N = len(lines)
+        symbols = np.zeros(N,dtype=str)
+        coords = np.zeros((N,3),dtype=float)
+
+        for k, line in enumerate(lines):
+            split_line = line.rstrip().lstrip().split()
+            symbols[k] = split_line[0]
+            coords[k,:] = list(map(float, split_line[1:4]))
+
+        return coords, symbols
+
+    else:
+        coords = np.array([list(map(float,line.lstrip().rstrip().split()[1:4])) for line in lines])
+
+        return coords
 
 
 def write_xyz(coords,symbols,filename,append=False):
