@@ -251,7 +251,7 @@ def vdos(vel, dt=1.0, m=None, area=1.0, window=True,
 
     # average remaining axes, summing is enough b/c normalization is done below
     # sums: (nstep, natoms, 3) -> (nstep, natoms) -> (nstep,)
-    while fft_vel.ndims > 1:
+    while fft_vel.ndim > 1:
         fft_vel = fft_vel.sum(-1)
     vdos = norm_int(fft_vel,faxis,area=area)
     out = (faxis, vdos)
