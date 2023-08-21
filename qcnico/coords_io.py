@@ -249,7 +249,7 @@ def get_lammps_frame(dump, nframe, return_symbols=False, step=1, frame0_index=0)
         print('yo')
         return pos
 
-def stream_lammps_traj(dump, start, end, step=1, nb_non_coord_lines=9,stream_cols=slice(1,4), start_file=0, step_file=1):
+def stream_lammps_traj(dump, start, end, step=1, nb_non_coord_lines=9,stream_cols=slice(1,4), start_file=0, step_file=1, atom_indices=None):
     """Parse a LAMMPS MD trajectory contained in dump file `dump` using islice and a yield statement to save time.
     `stream_cols` argument corresponds to the indices of `line.split()` which are desired.
     Args `start_file` and `step_file` are used to account for the fact that the file being read may not necessarily 
@@ -278,8 +278,10 @@ def stream_lammps_traj(dump, start, end, step=1, nb_non_coord_lines=9,stream_col
         lines_gen = islice(fo,start*nlines_per_frame, (start+1)*nlines_per_frame)
         relevant_lines = [l.rstrip().split() for l in list(lines_gen)]
         traj_data = np.array([list( map(float, l[stream_cols]) ) for l in relevant_lines[nb_non_coord_lines:]])
-            
-        yield traj_data
+        if atom_indices is None:
+            yield traj_data
+        else:
+            yield traj_data[atom_indices]
 
         cnt += 1
                 
@@ -287,7 +289,10 @@ def stream_lammps_traj(dump, start, end, step=1, nb_non_coord_lines=9,stream_col
             lines_gen = islice(fo, (step-1)*nlines_per_frame, (step)*nlines_per_frame)
             relevant_lines = [l.rstrip().split() for l in list(lines_gen)]
             traj_data = np.array([list( map(float, l[stream_cols]) ) for l in relevant_lines[nb_non_coord_lines:]])
-            yield traj_data
+            if atom_indices is None:
+                yield traj_data
+            else:
+                yield traj_data[atom_indices]
             cnt += 1
        
 
