@@ -3,28 +3,31 @@
 from time import perf_counter
 import numpy as np
 import matplotlib.pyplot as plt
-from qcnico.coords_io import stream_lammps_traj, get_lammps_frame
+from qcnico.coords_io import stream_lammps_traj
 
 
 fdir = "/Users/nico/Desktop/simulation_outputs/MO_dynamics/40x40/subsampled_trajfiles/"
 
 f100 = fdir + '100K_norotate_10000-100000-10.lammpstrj'
 
-frames = np.array([10000, 20000, 30000])
-times_stream = np.zeros_like(frames)
-times_read = np.zeros_like(frames)
+frame0 = 10000
+lastframe = 11000
+#frames = np.arange(frame0,1+lastframe)
+# print(frames.shape)
+times_stream = np.zeros(lastframe - frame0 +1)
+# times_read = np.zeros_like(frames)
 
 natoms_read = 10
 
 selected_atoms = slice(0, natoms_read)
-pos1 = np.zeros((frames.shape[0], natoms_read, 3))
+pos1 = np.zeros((1+(lastframe-frame0)//10, natoms_read, 3))
 
-frames100 = stream_lammps_traj(f100, frames[0], frames[-1], 10000, start_file=10000, step_file=10, atom_indices=selected_atoms)
+frames100 = stream_lammps_traj(f100, frame0, lastframe, 10, start_file=10000, step_file=10, atom_indices=selected_atoms)
 
-for k,frame in enumerate(frames):
-    print(f"----- {frame} -----")
+for k,frame in enumerate(frames100):
+    print(f"----- {k} -----")
     start = perf_counter()
-    pos1[k] = next(frames100)
+    pos1[k] = frame
     end = perf_counter()
 
     times_stream[k] = end - start
