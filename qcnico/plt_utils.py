@@ -22,8 +22,9 @@ def get_cm(vals, cmap_str, max_val=0.7, min_val=0.0):
     return cmap(x)
 
 
-def setup_tex(preamble_str=None):
+def setup_tex(fontsize=18,preamble_str=None):
     rcParams['text.usetex'] = True
+    rcParams['font.size'] = fontsize
     if preamble_str:
         rcParams['text.latex.preamble'] = preamble_str
     else:

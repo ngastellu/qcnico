@@ -78,7 +78,7 @@ def plot_MO(pos,MO_matrix,n,dotsize=45.0,show_COM=False,show_rgyr=False,usetex=T
     ax1.set_aspect('equal')
     if show_COM or show_rgyr:
         com = psi @ pos
-        ax1.scatter(*com, s=dotsize+1,marker='*',c='r')
+        ax1.scatter(*com, s=dotsize*10,marker='*',c='r')
     if show_rgyr:
         rgyr = MO_rgyr(pos,MO_matrix,n,center_of_mass=com)
         loc_circle = plt.Circle(com, rgyr, fc='none', ec='r', ls='--', lw=1.0)
