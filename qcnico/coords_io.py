@@ -59,7 +59,7 @@ def read_xyz(filepath,return_symbols=False):
 
     if return_symbols:
         N = len(lines)
-        symbols = np.zeros(N,dtype=str)
+        symbols = [None] * N
         coords = np.zeros((N,3),dtype=float)
 
         for k, line in enumerate(lines):
