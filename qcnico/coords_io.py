@@ -78,7 +78,7 @@ def read_xyz(filepath,return_symbols=False):
 def write_xyz(coords,symbols,filename,append=False):
     """Writes the coordinates stored in NumPy array to a .xyz file.
 
-    Parameter
+    Parameters
     ----------
     coords: `numpy.ndarray`, shape=(N,M) with M > 1, dtype=float
         Cartesian coordinates that we wish to write to a file
