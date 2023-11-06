@@ -282,7 +282,7 @@ def ray_crossings(M,cycle,u,coords):
 
     crossings = 0
     point = coords[u]
-    x_pt, y_pt = coords[u]
+    x_pt, y_pt = coords[u,]
 
     for i, j in combinations(cycle,2):
         if not M[i,j]: #if (i,j) is not an edge, skip this pair of indices
@@ -399,6 +399,7 @@ def count_rings(coords,rcut,max_size=16):
     """
 
     N = coords.shape[0]
+    coords = coords[:,:2] # keep only x- and y-coords (assuming system is 2D)
 
     M = adjacency_matrix_sparse(coords,rcut)
 
