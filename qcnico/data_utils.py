@@ -47,7 +47,7 @@ def avg_ydata(datadir_prefix,ydata_npy,xdata_npy=None):
     y_avg /= len(datadirs)
 
     if xdata_npy is not None:
-        x = np.load(xdata_npy)
+        x = np.load(d+'/'+xdata_npy)
         return x, y_avg
     
     else:
