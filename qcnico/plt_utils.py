@@ -31,7 +31,8 @@ def setup_tex(fontsize=18,preamble_str=None):
         rcParams['text.latex.preamble'] = r'\usepackage{amsmath} \usepackage{amssymb}  \usepackage{bm}'
 
 
-def histogram(values,nbins=100,normalised=False,xlabel=None,ylabel=None,log_counts=False,plt_objs=None,show=True,plt_kwargs=None,print_dx=True):
+def histogram(values,nbins=100,normalised=False,xlabel=None,ylabel=None,log_counts=False,
+              plt_objs=None,show=True,plt_kwargs=None,print_dx=True,return_data=False):
     hist, bins = np.histogram(values,nbins)
     dx = bins[1:] - bins[:-1]
     centers = (bins[1:] + bins[:-1])/2
@@ -72,3 +73,6 @@ def histogram(values,nbins=100,normalised=False,xlabel=None,ylabel=None,log_coun
 
     if show:
         plt.show()
+     
+    if return_data:
+        return centers, hist
