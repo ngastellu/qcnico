@@ -28,18 +28,28 @@ def avg_ydata(datadir_prefix,ydata_npy,xdata_npy=None):
         Values of the dependent variable which yielded the values in `out`. This is only output if
         `x_data_npy` is not `None`.
     """
+
+    # Doing some formatting checks/fixes on the specified file names
+    if ydata_npy[-4:] != '.npy':
+        ydata_npy += '.npy'
+    if xdata_npy[-4:] != '.npy':
+        xdata_npy += '.npy'
+    if datadir_prefix[-1] == '*':
+        datadir_prefix = datadir_prefix[:-1]
+    
+
     datadirs = glob(datadir_prefix+'*')
     y_avg = np.load(datadirs[0]+'/'+ydata_npy)
     
     for d in datadirs[1:]:
         y_avg += np.load(d+'/'+ydata_npy)
     
-    y_data /= len(datadirs)
+    y_avg /= len(datadirs)
 
     if xdata_npy is not None:
         x = np.load(xdata_npy)
-        return x, y_data
+        return x, y_avg
     
     else:
-        return y_data
+        return y_avg
     
