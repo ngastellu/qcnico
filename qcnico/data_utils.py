@@ -2,6 +2,7 @@
 
 import numpy as np
 from glob import glob
+from os import path
 
 def avg_ydata(datadir_prefix,ydata_npy,xdata_npy=None):
     """Computes the average of the data produced by a SLURM job array (or any data which is contained
@@ -39,17 +40,36 @@ def avg_ydata(datadir_prefix,ydata_npy,xdata_npy=None):
     
 
     datadirs = glob(datadir_prefix+'*')
-    y_avg = np.load(datadirs[0]+'/'+ydata_npy)
+    nsuccess = 0
+    k = 0
+    while nsuccess == 0:
+        d = datadirs[k]
+        ynpy = d+'/'+ydata_npy
+        if path.exists(ynpy):
+            y_avg = np.load(ynpy)
+            nsuccess = 1
+            k+=1
+        else:
+            print(f'No data found in {d}/')
+            k+=1
     
-    for d in datadirs[1:]:
-        y_avg += np.load(d+'/'+ydata_npy)
+    for d in datadirs[k:]:
+        ynpy = d+'/'+ydata_npy
+        if path.exists(ynpy):
+            y_avg += np.load(ynpy)
+            nsuccess += 1
+        else:
+            print(f'No data found in {d}/')
     
-    y_avg /= len(datadirs)
+    y_avg /= nsuccess
+
+    print(f'**********************\n{nsuccess}/{len(datadirs)} successful runs.')
 
     if xdata_npy is not None:
-        x = np.load(d+'/'+xdata_npy)
+        x = np.load(datadirs[k-1]+'/'+xdata_npy) # datadirs[k-1] contains ydata so we assume it also contains xdata
         return x, y_avg
     
     else:
         return y_avg
+
     
