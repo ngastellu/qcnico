@@ -5,6 +5,7 @@ from scipy.spatial import cKDTree
 from scipy import sparse
 from itertools import combinations
 from collections import deque
+from time import perf_counter
 
 
 def adjacency_matrix_sparse(coords,rcut,supercell=None,return_pairs=False):
@@ -244,16 +245,16 @@ def chordless_cycles(M,path,max_size,source_neighbours,in_path,cycles):
             if v in source_neighbours:
                 #print('Cycle detected! Cycle: ', path)
                 cycles.append(tuple(path))
-                path.pop() #remove last node from path
+                path.pop() #remove last node (i.e. v) from path
                 in_path[v] = False
             elif len(path) >= max_size:
-                path.pop()
+                path.pop() # remove from path
                 in_path[v] = False
                 break #exit the loop if the path is too large
             else:
                 cycles = chordless_cycles(M,path,max_size,source_neighbours,in_path,cycles)
     
-    path.pop() #remove last node from path
+    path.pop() #remove last node (i.e. u) from path
     in_path[u] = False
     #print('Popping path: ', path)
 
@@ -378,7 +379,7 @@ def check_bad_cycle(M,cycle,coords):
     return bad_cycle
 
 
-def count_rings(coords,rcut,max_size=16):
+def count_rings(coords,rcut,max_size=16, return_cycles=False):
     """Counts all of the atomic rings under a given length in a molecule.
     
     Parameters
@@ -443,7 +444,10 @@ def count_rings(coords,rcut,max_size=16):
             if len(cycle) == 6: print(cycle)
             ring_data[len(cycle)-3] += 1
 
-    return ring_data
+    if return_cycles:
+        return ring_data, unique_cycles
+    else:
+        return ring_data
 
 def components(M):
     '''Returns the connected components of a graph characterised by adjacency matrix M.
@@ -477,6 +481,55 @@ def components(M):
 def pairwise_dists(pos):
     """Quick and dirty method for computing pairwise distance (in Euclidean space) between points in `pos` array."""
     return np.linalg.norm(pos[None,:] - pos[:,None], axis=2)
+
+def hexagon_adjmat(hexagons):
+    """Builds 'adjacency matrix' of hexagons: two hexagons are 'connected' if they share a vertex (i.e. C atom)."""
+
+    Nhex = hexagons.shape[0]
+    Mhex = np.zeros((Nhex,Nhex),dtype=bool)# adjacency matrix for hexagons
+    pair_inds = np.triu_indices(Mhex,1)
+
+    for ij in pair_inds:
+        i, j = pair_inds
+        hexi = hexagons[i,:]
+        hexj = hexagons[j,:]
+        diff = hexi[:,None] - hexj # efficient pairwise difference of all vertex indices in both rings
+        if np.any(diff == 0):
+            Mhex[i,j] = True
+    
+    Mhex += Mhex.T
+    return Mhex
+
+
+def classify_hexagons(hexagons):
+    """Separates hexagons into two classes: 
+        * isolated 
+        * crystallite
+    Crystallites are regions of the MAC sample comprised of only hexagons whose surface area is 
+    greater than or equal to one hexagon surrounded with six other hexagons."""
+    
+    hexagons = np.array(hexagons) # cast hexagons as ndarray to make things easier down the road (None indexing, etc.)    
+    print("Building hexagon adjacency matrix...")
+    start = perf_counter()
+    Mhex = hexagon_adjmat(hexagons)
+    end = perf_counter()
+    print(f"Done! [{end-start}s]")
+    nb_neighbours = Mhex.sum(0) #Mhex is symmetric so summing over rows or cols is the same
+    
+    nuclei = (nb_neighbours == 6).nonzero()[0] # hexagons surrounded with six other hexagons
+    weird_nuclei = (nb_neighbours > 6).nonzero()[0] # this is geometrically impossible so this list should be empty
+    print(f"*** Found {nuclei.shape[0]} nuclei! ***")
+    print(f"!!!! Found {weird_nuclei.shape[0]} weird nuclei !!!!")
+    
+    pass
+
+
+
+
+
+
+
+
 
 
 
