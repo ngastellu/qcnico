@@ -71,5 +71,21 @@ def avg_ydata(datadir_prefix,ydata_npy,xdata_npy=None):
     
     else:
         return y_avg
+    
+
+def read_dat_file(datfile):
+    """Parses datfile produced by other scripts I wrote. The files are formatted as follows:
+    line 1: [Name of x variable] | [Name of y variable]
+    ....
+    line n: x_n |  y_n
+    """
+
+    with open(datfile) as fo:
+        lines = fo.readlines()
+
+    x = np.array([float(l.split()[0]) for l in lines[1:]])
+    y = np.array([float(l.split()[2]) for l in lines[1:]])
+
+    return x, y
 
     
