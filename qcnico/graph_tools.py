@@ -4,6 +4,7 @@ import numpy as np
 from scipy.spatial import cKDTree
 from scipy import sparse
 from itertools import combinations
+from functools import reduce
 from collections import deque
 from time import perf_counter
 
@@ -449,14 +450,20 @@ def count_rings(coords,rcut,max_size=16, return_cycles=False):
     else:
         return ring_data
 
-def components(M):
+def components(M, seed_nodes=None):
     '''Returns the connected components of a graph characterised by adjacency matrix M.
-    Stolen from the NetworkX library.'''
+    Originally shamelessly stolen from the NetworkX library.
+    
+    If seed_nodes is specified, the algorithm will only consider clusters containing the nodes indexed in
+    seed_nodes (in other words the nodes in seed_nodes 'seed' the search for each cluster). 
+    It will do so by having its outer loop run only over seed_nodes.'''
 
     N = M.shape[0]
     seen = set()
     clusters = []
-    for i in range(N):
+    if seed_nodes is None:
+        seed_nodes = range(N) #if no seed nodes are
+    for i in seed_nodes:
         if i not in seen:
             # do a breadth-first search starting from each unseen node
             c = set()
@@ -485,17 +492,24 @@ def pairwise_dists(pos):
 def hexagon_adjmat(hexagons):
     """Builds 'adjacency matrix' of hexagons: two hexagons are 'connected' if they share a vertex (i.e. C atom)."""
 
+    hexagons = np.array(hexagons)
     Nhex = hexagons.shape[0]
     Mhex = np.zeros((Nhex,Nhex),dtype=bool)# adjacency matrix for hexagons
-    pair_inds = np.triu_indices(Mhex,1)
+    pair_inds = np.vstack(np.triu_indices(Nhex,1)).T
 
     for ij in pair_inds:
-        i, j = pair_inds
+        # print(f"\n***** Working on pair: {ij} *****")
+        i, j = ij
         hexi = hexagons[i,:]
         hexj = hexagons[j,:]
         diff = hexi[:,None] - hexj # efficient pairwise difference of all vertex indices in both rings
         if np.any(diff == 0):
             Mhex[i,j] = True
+            # common_bools = (diff == 0).nonzero()
+            # common_inds_hexi = hexi[common_bools[0]]
+            # common_inds_hexj = hexj[common_bools[1]]
+            # print(common_inds_hexi)
+            # print(common_inds_hexj)
     
     Mhex += Mhex.T
     return Mhex
@@ -506,9 +520,14 @@ def classify_hexagons(hexagons):
         * isolated 
         * crystallite
     Crystallites are regions of the MAC sample comprised of only hexagons whose surface area is 
-    greater than or equal to one hexagon surrounded with six other hexagons."""
+    greater than or equal to one hexagon surrounded with six other hexagons.
+    
+   **** N.B. ****
+   Returns two lists of INDICES which refer to elements of hexagons. For this function to work,
+   ensure the heaxagons is an ORDERED iterable (e.g. not a `set`)."""
     
     hexagons = np.array(hexagons) # cast hexagons as ndarray to make things easier down the road (None indexing, etc.)    
+    nhex = hexagons.shape[0]
     print("Building hexagon adjacency matrix...")
     start = perf_counter()
     Mhex = hexagon_adjmat(hexagons)
@@ -520,17 +539,26 @@ def classify_hexagons(hexagons):
     weird_nuclei = (nb_neighbours > 6).nonzero()[0] # this is geometrically impossible so this list should be empty
     print(f"*** Found {nuclei.shape[0]} nuclei! ***")
     print(f"!!!! Found {weird_nuclei.shape[0]} weird nuclei !!!!")
+
+    crystalline_clusters = components(Mhex, seed_nodes=nuclei)
+    crystalline_hexs = reduce(set.union, crystalline_clusters) #set of all crystalline hexagons (one big set as opposed to list of sets) 
+    all_hexs = set(range(nhex))
+    isolated_hexs = all_hexs - crystalline_hexs
+
+    return crystalline_hexs, isolated_hexs
+
     
-    pass
+def cycle_centers(cycles, pos):
+    """Returns the center of gravity of each cycle"""
+    
+    d = pos.shape[1] # nb of dimensions
+    ncycles = len(cycles)
+    centers = np.zeros((ncycles,d),dtype=float)
 
+    for k, c in enumerate(cycles):
+        centers[k,:] = np.mean(pos[list(c)],axis=0)
 
-
-
-
-
-
-
-
+    return centers
 
 
 

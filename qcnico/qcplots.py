@@ -152,3 +152,44 @@ def plot_loc_discrep(iprs, rgyrs, energies, dotsize=10, cmap='viridis' ,usetex=T
     if show:
         plt.show()
 
+def size_to_clr(n):
+    """Associates a colour string to each ring size"""
+
+    if n == 3:
+        return 'fuchsia'
+    elif n == 4:
+        return 'aqua'
+    elif n == 5:
+        return 'red'
+    elif n == 6:
+        return 'darkgreen'
+    elif n == -6: #crystallite hexagons
+        return "limegreen"
+    elif n == 7 or n == 8:
+        return 'blue'
+    else:
+        return 'lightsteelblue'
+
+
+def plot_rings_MAC(pos,M,ring_sizes,ring_centers,dotsize_atoms=45.0,dotsize_centers=300.0,plt_objs=None,show=True,return_plt_objs=False):
+    pos = pos[:,:2] # assume all z coords are 0 (project everything to xy plane)
+    ring_centers = ring_centers[:,:2]
+    
+    if plt_objs is None:
+        fig, ax = plot_atoms(pos,dotsize=dotsize_atoms,show=False,return_plt_objs=True)
+    else:
+        fig, ax = plot_atoms(pos,dotsize=dotsize_atoms,show=False,plt_objs=plt_objs,return_plt_objs=True)
+
+    pairs = np.vstack(M.nonzero()).T
+    
+    for i,j in pairs:
+        ax.plot([pos[i,0], pos[j,0]], [pos[i,1], pos[j,1]], 'k-', lw=0.5)
+    
+    ring_colours = list(map(size_to_clr,ring_sizes))
+    ax.scatter(*ring_centers.T,c=ring_colours,s=dotsize_centers)
+
+    if return_plt_objs:
+        return fig, ax
+
+    if show:
+        plt.show()
