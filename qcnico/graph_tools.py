@@ -380,7 +380,7 @@ def check_bad_cycle(M,cycle,coords):
     return bad_cycle
 
 
-def count_rings(coords,rcut,max_size=16, return_cycles=False):
+def count_rings(coords,rcut,max_size=16, return_cycles=False, distinguish_hexagons=False):
     """Counts all of the atomic rings under a given length in a molecule.
     
     Parameters
@@ -445,10 +445,25 @@ def count_rings(coords,rcut,max_size=16, return_cycles=False):
             if len(cycle) == 6: print(cycle)
             ring_data[len(cycle)-3] += 1
 
-    if return_cycles:
-        return ring_data, unique_cycles
+    if distinguish_hexagons:
+        hexs = np.array([c for c in unique_cycles if (len(c) == 6)]) 
+        c6,i6 = classify_hexagons(hexs)
+
+        new_ring_data = np.zeros(ring_data.shape[0]+1,dtype=int) # now need one more entry to distinguish hexagon types
+        new_ring_data[:3] = ring_data[:3]
+        new_ring_data[3] = len(c6)
+        new_ring_data[4] = len(i6)
+        new_ring_data[5:] = ring_data[4:]
+        
+        if return_cycles:
+            return new_ring_data, unique_cycles
+        else:
+            return new_ring_data
     else:
-        return ring_data
+        if return_cycles:
+            return ring_data, unique_cycles
+        else:
+            return ring_data
 
 def components(M, seed_nodes=None):
     '''Returns the connected components of a graph characterised by adjacency matrix M.

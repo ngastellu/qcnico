@@ -15,7 +15,7 @@ pos = read_xyz(strucfile)
 M = qcngt.adjacency_matrix_sparse(pos,rCC)
 
 
-ring_data, cycles = qcngt.count_rings(pos,rCC,max_size=8,return_cycles=True)
+ring_data, cycles = qcngt.count_rings(pos,rCC,max_size=8,return_cycles=True, distinguish_hexagons=True)
 
 cycles = list(cycles) # 'fix' the ordering of cycles
 is_cryst = np.zeros(len(cycles), dtype=bool)
@@ -47,6 +47,8 @@ hex_inds = (ring_sizes == 6).nonzero()[0]
 cryst_inds = hex_inds[c6]
 
 ring_sizes[cryst_inds] *= -1 #crystalline hexagons are assigned size -6
+
+print(ring_data)
 
 fig, ax = qcplots.plot_rings_MAC(pos,M,ring_sizes,cycle_coms,dotsize_atoms=10.0,dotsize_centers=50.0,show=False, return_plt_objs=True)
 
