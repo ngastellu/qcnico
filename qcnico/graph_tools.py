@@ -530,7 +530,7 @@ def hexagon_adjmat(hexagons):
     return Mhex
 
 
-def classify_hexagons(hexagons):
+def classify_hexagons(hexagons,strict_filter=True):
     """Separates hexagons into two classes: 
         * isolated 
         * crystallite
@@ -554,9 +554,22 @@ def classify_hexagons(hexagons):
     weird_nuclei = (nb_neighbours > 6).nonzero()[0] # this is geometrically impossible so this list should be empty
     print(f"*** Found {nuclei.shape[0]} nuclei! ***")
     print(f"!!!! Found {weird_nuclei.shape[0]} weird nuclei !!!!")
+    
+    # Strict filtering crystalline hexs involves keeping only those who are the next-nearest-neighbours (at least) of
+    # 'nuclei' hexagons.
+    if strict_filter:
+        nuclei_neighbs = Mhex[:,nuclei].nonzero()[0]
 
-    crystalline_clusters = components(Mhex, seed_nodes=nuclei)
-    crystalline_hexs = reduce(set.union, crystalline_clusters) #set of all crystalline hexagons (one big set as opposed to list of sets) 
+        Mhex = Mhex.astype(int) # gets next-nearest neighbour adjacency matrix
+        Mhex2 = np.matmul(Mhex, Mhex)
+        nuclei_next_neighbs = Mhex2[:,nuclei].nonzero()[0]
+
+        crystalline_hexs = set(np.concatenate((nuclei,nuclei_neighbs,nuclei_next_neighbs)))
+
+    else:
+        crystalline_clusters = components(Mhex, seed_nodes=nuclei)
+        crystalline_hexs = reduce(set.union, crystalline_clusters) #set of all crystalline hexagons (one big set as opposed to list of sets)  
+    
     all_hexs = set(range(nhex))
     isolated_hexs = all_hexs - crystalline_hexs
 
