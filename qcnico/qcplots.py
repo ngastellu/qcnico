@@ -43,7 +43,7 @@ def plot_atoms(pos,dotsize=45.0,colour='k',show_cbar=False, usetex=True,show=Tru
 
 
 
-def plot_MO(pos,MO_matrix,n,dotsize=45.0,show_COM=False,show_rgyr=False,usetex=True,show=True, plt_objs=None):
+def plot_MO(pos,MO_matrix,n,dotsize=45.0,cmap='plasma',show_COM=False,show_rgyr=False,usetex=True,show=True, plt_objs=None):
 
     if pos.shape[1] == 3:
         pos = pos[:,:2]
@@ -70,7 +70,7 @@ def plot_MO(pos,MO_matrix,n,dotsize=45.0,show_COM=False,show_rgyr=False,usetex=T
         fig, ax1 = plt_objs
     #fig.set_size_inches(figsize,forward=True)
 
-    ye = ax1.scatter(pos.T[0,:],pos.T[1,:],c=psi,s=dotsize,cmap='plasma')
+    ye = ax1.scatter(pos.T[0,:],pos.T[1,:],c=psi,s=dotsize,cmap=cmap)
     cbar = fig.colorbar(ye,ax=ax1,orientation='vertical')
     plt.suptitle('$|\langle\\varphi_n|\psi_{%d}\\rangle|^2$'%n)
     ax1.set_xlabel('$x$ [\AA]')
