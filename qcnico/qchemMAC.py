@@ -515,3 +515,12 @@ def gridifyMO(pos,M,n,nbins,pad_rho,return_edges=True):
         return rho_out, xedges, yedges
     else:
         return rho_out
+    
+def alpha_LEGS(M,n=None):
+    """Computes the alpha coefficient of an MO as defined in PHYSICAL REVIEW B, VOLUME 63, 195111 (Malyshev & Malyhsev)"""
+    if n is None:
+        psis = M
+    else:
+        psis = M[:,n]
+    
+    return np.abs((psis * np.abs(psis)).sum(axis=0))
