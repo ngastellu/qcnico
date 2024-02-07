@@ -43,12 +43,15 @@ def plot_atoms(pos,dotsize=45.0,colour='k',show_cbar=False, usetex=True,show=Tru
 
 
 
-def plot_MO(pos,MO_matrix,n,dotsize=45.0,cmap='plasma',show_COM=False,show_rgyr=False,usetex=True,show=True, plt_objs=None):
+def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_rgyr=False, plot_amplitude=False, scale_up=1.0, usetex=True, show=True, plt_objs=None):
 
     if pos.shape[1] == 3:
         pos = pos[:,:2]
 
-    psi = np.abs(MO_matrix[:,n])**2
+    if plot_amplitude:
+        psi = np.abs(MO_matrix[:,n])
+    else: # plots the probability density associated with the desired MOs (default behaviour)
+        psi = np.abs(MO_matrix[:,n])**2
 
     rcParams['font.size'] = 16
 
@@ -70,7 +73,13 @@ def plot_MO(pos,MO_matrix,n,dotsize=45.0,cmap='plasma',show_COM=False,show_rgyr=
         fig, ax1 = plt_objs
     #fig.set_size_inches(figsize,forward=True)
 
-    ye = ax1.scatter(pos.T[0,:],pos.T[1,:],c=psi,s=dotsize,cmap=cmap)
+    sizes = dotsize * np.ones(pos.shape[0])
+    if plot_amplitude:
+        sizes[psi**2 > 0.001] *= scale_up #increase size of high-probability sites
+    else:
+        sizes[psi > 0.001] *= scale_up
+    ye = ax1.scatter(pos.T[0,:],pos.T[1,:],c=psi,s=sizes,cmap=cmap)
+
     cbar = fig.colorbar(ye,ax=ax1,orientation='vertical')
     plt.suptitle('$|\langle\\varphi_n|\psi_{%d}\\rangle|^2$'%n)
     ax1.set_xlabel('$x$ [\AA]')
