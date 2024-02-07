@@ -1,7 +1,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib import rcParams
+from matplotlib import rcParams, colors
 from .plt_utils import setup_tex
 from .qchemMAC import MO_rgyr, MCO_com, MCO_rgyr
 
@@ -48,10 +48,8 @@ def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_
     if pos.shape[1] == 3:
         pos = pos[:,:2]
 
-    if plot_amplitude:
-        psi = np.abs(MO_matrix[:,n])
-    else: # plots the probability density associated with the desired MOs (default behaviour)
-        psi = np.abs(MO_matrix[:,n])**2
+    psi = MO_matrix[:,n]
+    density = np.abs(psi)**2
 
     rcParams['font.size'] = 16
 
@@ -74,19 +72,25 @@ def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_
     #fig.set_size_inches(figsize,forward=True)
 
     sizes = dotsize * np.ones(pos.shape[0])
+
+    sizes[density > 0.001] *= scale_up #increase size of high-probability sites
+    
     if plot_amplitude:
-        sizes[psi**2 > 0.001] *= scale_up #increase size of high-probability sites
+        ye = ax1.scatter(pos.T[0,:],pos.T[1,:],c=psi,s=sizes,cmap=cmap,norm=colors.CenteredNorm()) #CenteredNorm() sets center of cbar to 0
     else:
-        sizes[psi > 0.001] *= scale_up
-    ye = ax1.scatter(pos.T[0,:],pos.T[1,:],c=psi,s=sizes,cmap=cmap)
+        ye = ax1.scatter(pos.T[0,:],pos.T[1,:],c=density,s=sizes,cmap=cmap) #CenteredNorm() sets center of cbar to 0
 
     cbar = fig.colorbar(ye,ax=ax1,orientation='vertical')
-    plt.suptitle('$|\langle\\varphi_n|\psi_{%d}\\rangle|^2$'%n)
+    if plot_amplitude:
+        plt.suptitle('$\langle\\varphi_n|\psi_{%d}\\rangle$'%n)
+    else:
+        plt.suptitle('$|\langle\\varphi_n|\psi_{%d}\\rangle|^2$'%n)
+
     ax1.set_xlabel('$x$ [\AA]')
     ax1.set_ylabel('$y$ [\AA]')
     ax1.set_aspect('equal')
     if show_COM or show_rgyr:
-        com = psi @ pos
+        com = density @ pos
         ax1.scatter(*com, s=dotsize*10,marker='*',c='r')
     if show_rgyr:
         rgyr = MO_rgyr(pos,MO_matrix,n,center_of_mass=com)
