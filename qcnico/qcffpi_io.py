@@ -65,7 +65,7 @@ def read_MO_file(infile, Natoms=None, MO_inds=None):
         return positions, MO_matrix
 
 
-def read_energies(orb_file,Natoms=-1,convert2eV=True):
+def read_energies(orb_file,Natoms=None,convert2eV=True):
     """Reads energies from QCCFPI output file `orb_file` and returns them in an array.
     
     *** ASSUMES ENERGIES ARE SORTED *** 
@@ -77,7 +77,7 @@ def read_energies(orb_file,Natoms=-1,convert2eV=True):
 
     with open(orb_file) as fo:
         lines = fo.readlines()
-    if Natoms == -1:
+    if Natoms is None:
         nlines_to_read = int(len(lines)/2)
 
     else:
