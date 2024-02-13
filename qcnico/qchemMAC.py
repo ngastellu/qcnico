@@ -350,7 +350,7 @@ def interference_matrix_MO(e,M,energy_lvls,gamL,gamR):
 
 def MO_com(pos, MO_matrix, n=None):
 
-    if n is None:
+    if n is not None:
         psi = np.abs(MO_matrix[:,n]**2)
     else:
         psi = np.abs(MO_matrix**2)
