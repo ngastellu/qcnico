@@ -41,6 +41,28 @@ def plot_atoms(pos,dotsize=45.0,colour='k',show_cbar=False, usetex=True,show=Tru
     if return_plt_objs: # should not be True if `show=True`
         return fig, ax
 
+def plot_atoms_w_bonds(pos,M,dotsize=45.0,colour='k', bond_colour='k', bond_lw=0.5,usetex=True,show=True, plt_objs=None, return_plt_objs=False):
+
+    if usetex:
+        setup_tex()
+
+    if plt_objs is None:
+        fig, ax = plot_atoms(pos,dotsize=dotsize,colour=colour,show=False,return_plt_objs=True)
+    else:
+        fig, ax = plot_atoms(pos,dotsize=dotsize,colour=colour,show=False,plt_objs=plt_objs,return_plt_objs=True)
+
+    pairs = np.vstack(M.nonzero()).T
+    
+    for i,j in pairs:
+        ax.plot([pos[i,0], pos[j,0]], [pos[i,1], pos[j,1]], c=bond_colour, ls='-', lw=bond_lw)
+    
+    if show: 
+        plt.show()
+    
+    if return_plt_objs: # should not be True if `show=True`
+        return fig, ax
+    
+
 
 
 def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_rgyr=False, plot_amplitude=False, scale_up=1.0, com_clr = 'r', title=None, usetex=True, show=True, plt_objs=None):

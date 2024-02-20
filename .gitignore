@@ -1,3 +1,4 @@
 qcnico/__pycache__
+*.DS_Store
 qcnico.egg-info
 pyproject.toml
