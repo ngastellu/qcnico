@@ -126,7 +126,7 @@ def check_intersect(edgeA,edgeB):
     try:
         s,t = np.linalg.solve(coefs,constants)
     except np.linalg.LinAlgError as e: #this error only gets raised if the systems of eqs has no solution
-        print(e)
+        print('[find_edge_carbons.check_intersect] LinAlgError: ', e, flush=True)
         return False
 
     #print(s)
@@ -301,8 +301,8 @@ def concave_hull(points, k, return_k=False):
         #if all candidate edges intersect the hull's pre-existing edges, restart the whole
         #procedure by considering k+1 nearest neighbours
         if intersects: 
-            #print('All candidate edges intersect with previous edges.\
-            #        Restarting with k = %d'%(k+1))
+            print('All candidate edges intersect with previous edges.\
+                    Restarting with k = %d'%(k+1), flush=True)
             #print(return_k,flush=True)
             return concave_hull(points,k+1,return_k)
 
@@ -323,13 +323,31 @@ def concave_hull(points, k, return_k=False):
     #if not all points lie in the hull, restart the whole procedure by considering
     #k+1 nearest neighbours
     if not all_inside:
-        #print('Outliers remain. Restarting with k = %d'%(k+1))
+        print(f'Outliers remain; exited with n = {n} of {dataset.shape[0]}. Restarting with k = {k+1}.', flush=True)
         #print(return_k,flush=True)
         return concave_hull(points, k+1,return_k)
     
     #print('Final k = ', k)
     if return_k: return np.array(hull), k
     else: return np.array(hull)
+
+
+def brute_force_hull(pos,edge_tol=0.01):
+    """Brute force method of identifiying edge sites of a MAC structure: if L is the length of the structure, then all
+    atoms within distance edge_tol*L are edge atoms."""
+
+    X = pos[:,0]
+    Y = pos[:,1]
+
+    Lx = np.max(X) - np.min(X)
+
+    delta_x = Lx * edge_tol
+
+    
+    left = (X < delta_x).nonzero()[0]
+    right = (X > Lx-delta_x).nonzero()[0]
+
+    return left, right
 
 
 

@@ -269,7 +269,7 @@ def stream_lammps_traj(dump, start, end, step=1, nb_non_coord_lines=9,stream_col
 
         traj_data = np.zeros((Natoms,ncoords))
 
-        # Renormalise `start` and `step` to account for the fact that the file may have its own non-trivial start and step
+        # Adjust `start` and `step` to account for the fact that the file may have its own non-trivial start and step
         start = (start - start_file) // step_file
         step = step // step_file
 
@@ -285,7 +285,7 @@ def stream_lammps_traj(dump, start, end, step=1, nb_non_coord_lines=9,stream_col
 
         cnt += 1
                 
-        while cnt <= nframes:
+        while cnt < nframes:
             lines_gen = islice(fo, (step-1)*nlines_per_frame, (step)*nlines_per_frame)
             relevant_lines = [l.rstrip().split() for l in list(lines_gen)]
             traj_data = np.array([list( map(float, l[stream_cols]) ) for l in relevant_lines[nb_non_coord_lines:]])

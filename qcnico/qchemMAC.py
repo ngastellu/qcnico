@@ -2,7 +2,7 @@ import numpy as np
 import scipy
 from scipy import sparse
 import scipy.sparse.linalg as sLA
-from .find_edge_carbons import concave_hull
+from .find_edge_carbons import concave_hull, brute_force_hull
 
 # Set of functions that are useful to process QCFFPI data and extract 
 # quantum chemical properties of MAC structures.
@@ -125,7 +125,7 @@ def inverse_participation_ratios(MO_matrix):
     return np.sum(np.abs(MO_matrix)**4, axis = 0)
 
 
-def AO_gammas(pos, gamma, edge_tol=3.0, return_separate=True, graphene=False):
+def AO_gammas(pos, gamma, edge_tol=3.0, return_separate=True, graphene=False, brute_force=False, eps_edge=0.01):
     """Returns the coupling matrices gamma_L and gamma_R represented in AO space (i.e. diagonal matrices).
     Edge atoms are detected using the concave hull algorithm.
     
@@ -165,22 +165,27 @@ def AO_gammas(pos, gamma, edge_tol=3.0, return_separate=True, graphene=False):
         left_bools = (pos[:,0] == sorted_xs[0]) + (pos[:,0] == sorted_xs[1]) 
         left_inds = left_bools.nonzero()[0]
     
-    # if the edge is nontrivial, find it using the concave hull algorithm
-    else: 
-        edge_bois = concave_hull(pos,3)
-        xmin = np.min(pos[:,0])
-        xmax = np.max(pos[:,0])
-        right_edge = edge_bois[edge_bois[:,0] > xmax - edge_tol]
-        left_edge = edge_bois[edge_bois[:,0] < xmin + edge_tol]
-
-        right_inds = np.zeros(right_edge.shape[0],dtype=int)
-        left_inds = np.zeros(left_edge.shape[0],dtype=int)
+    # if the edge is nontrivial, find it using the concave hull algorithm, or using brute force
         
-        for k, r in enumerate(right_edge):
-            right_inds[k] = np.all(pos == r, axis=1).nonzero()[0]
+    else: 
 
-        for k, r in enumerate(left_edge):
-            left_inds[k] = np.all(pos == r, axis=1).nonzero()[0]
+        if brute_force:
+            left_inds, right_inds = brute_force_hull(pos, eps_edge)
+        else:
+            edge_bois = concave_hull(pos,3)
+            xmin = np.min(pos[:,0])
+            xmax = np.max(pos[:,0])
+            right_edge = edge_bois[edge_bois[:,0] > xmax - edge_tol]
+            left_edge = edge_bois[edge_bois[:,0] < xmin + edge_tol]
+
+            right_inds = np.zeros(right_edge.shape[0],dtype=int)
+            left_inds = np.zeros(left_edge.shape[0],dtype=int)
+            
+            for k, r in enumerate(right_edge):
+                right_inds[k] = np.all(pos == r, axis=1).nonzero()[0]
+
+            for k, r in enumerate(left_edge):
+                left_inds[k] = np.all(pos == r, axis=1).nonzero()[0]
     
 
     N = pos.shape[0]
