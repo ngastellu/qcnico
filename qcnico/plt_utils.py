@@ -31,9 +31,9 @@ def setup_tex(fontsize=18,preamble_str=None):
         rcParams['text.latex.preamble'] = r'\usepackage{amsmath} \usepackage{amssymb}  \usepackage{bm}'
 
 
-def histogram(values,nbins=100,normalised=False,xlabel=None,ylabel=None,log_counts=False,
+def histogram(values,nbins=100,normalised=False,density=False,xlabel=None,ylabel=None,log_counts=False,
               plt_objs=None,show=True,plt_kwargs=None,print_dx=True,return_data=False):
-    hist, bins = np.histogram(values,nbins)
+    hist, bins = np.histogram(values,nbins,density=density)
     dx = bins[1:] - bins[:-1]
     centers = (bins[1:] + bins[:-1])/2
     hist = hist.astype(np.float64)
@@ -76,3 +76,53 @@ def histogram(values,nbins=100,normalised=False,xlabel=None,ylabel=None,log_coun
      
     if return_data:
         return centers, hist
+
+
+def multiple_histograms(vals_arr, labels, nbins=100, colors=None, alpha=0.6, normalised=False,density=False,xlabel=None,ylabel=None,log_counts=False,
+              plt_objs=None,show=True,plt_kwargs=None,print_dx=True,return_data=False,usetex=True,title=None):
+    
+    ndatasets = len(vals_arr)
+    
+    if ndatasets == 2 and colors is None:
+        colors = ['r', 'b']
+    elif colors is None:
+        cyc = rcParams['axes.prop_cycle'] #default plot colours are stored in this `cycler` type object
+        colors = [d['color'] for d in list(cyc[0:ndatasets])]
+
+    if plt_objs is None:
+        plt_objs = plt.subplots()
+        
+    fig, ax = plt_objs
+    
+    if usetex:
+        setup_tex()
+    
+    if title is not None:
+        ax.set_title(title)
+
+    for k, vals in enumerate(vals_arr):
+        if plt_kwargs is None:
+            plt_kwargs2 = {'color': colors[k],'label':labels[k], 'alpha': alpha}
+        else:
+            plt_kwargs2 = plt_kwargs | {'color': colors[k],'label':labels[k], 'alpha': alpha}
+       
+        if (k == ndatasets - 1):
+            if show:
+                histogram(vals, nbins=nbins, normalised=normalised, density=density, xlabel=xlabel, ylabel=ylabel,
+                          log_counts=log_counts, plt_objs=plt_objs, plt_kwargs=plt_kwargs2, print_dx=print_dx, show=False)
+                plt.legend()
+                plt.show()
+            else: 
+                histogram(vals, labels[k], nbins=nbins, normalised=normalised, density=density, xlabel=xlabel, ylabel=ylabel,
+                          log_counts=log_counts, plt_objs=plt_objs, plt_kwargs=plt_kwargs2, print_dx=print_dx, show=False)
+                return fig, ax
+        
+        else:
+                histogram(vals, nbins=nbins, normalised=normalised, density=density, xlabel=xlabel, ylabel=ylabel,
+                          log_counts=log_counts, plt_objs=plt_objs, plt_kwargs=plt_kwargs2, print_dx=print_dx, show=False)
+
+
+
+
+    
+    
