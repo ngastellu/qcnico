@@ -6,7 +6,7 @@ from .plt_utils import setup_tex
 from .qchemMAC import MO_rgyr, MCO_com, MCO_rgyr
 
 
-def plot_atoms(pos,dotsize=45.0,colour='k',show_cbar=False, usetex=True,show=True, plt_objs=None, return_plt_objs=False):
+def plot_atoms(pos,dotsize=45.0,colour='k',show_cbar=False, usetex=True,show=True, plt_objs=None, return_plt_objs=False,zorder=3):
 
     if pos.shape[1] == 3:
         pos = pos[:,:2]
@@ -21,7 +21,7 @@ def plot_atoms(pos,dotsize=45.0,colour='k',show_cbar=False, usetex=True,show=Tru
     else:
         fig, ax = plt_objs
 
-    ye = ax.scatter(*pos.T, c=colour, s=dotsize)
+    ye = ax.scatter(*pos.T, c=colour, s=dotsize,zorder=zorder)
 
     #uncomment below to remove whitespace around plot
     #fig.subplots_adjust(left=0,right=1,bottom=0,top=1)
@@ -223,14 +223,14 @@ def plot_rings_MAC(pos,M,ring_sizes,ring_centers,atom_labels=None,dotsize_atoms=
         atom_colours = ['k'] * pos.shape[0]
     
     if plt_objs is None:
-        fig, ax = plot_atoms(pos,colour=atom_colours,dotsize=dotsize_atoms,show=False,return_plt_objs=True)
+        fig, ax = plot_atoms(pos,colour=atom_colours,dotsize=dotsize_atoms,show=False,return_plt_objs=True,zorder=10)
     else:
-        fig, ax = plot_atoms(pos,colour=atom_colours,dotsize=dotsize_atoms,show=False,plt_objs=plt_objs,return_plt_objs=True)
+        fig, ax = plot_atoms(pos,colour=atom_colours,dotsize=dotsize_atoms,show=False,plt_objs=plt_objs,return_plt_objs=True,zorder=10)
 
     pairs = np.vstack(M.nonzero()).T
     
     for i,j in pairs:
-        ax.plot([pos[i,0], pos[j,0]], [pos[i,1], pos[j,1]], 'k-', lw=0.5)
+        ax.plot([pos[i,0], pos[j,0]], [pos[i,1], pos[j,1]], 'k-', lw=0.5,zorder=1)
     
     ring_colours = list(map(size_to_clr,ring_sizes))
         

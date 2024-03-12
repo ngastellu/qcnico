@@ -10,7 +10,7 @@ pos_path = '/Users/nico/Desktop/simulation_outputs/MAC_structures/kMC/4x4_ensemb
 pos = read_xyz(pos_path)
 rCC = 1.8
 M = adjacency_matrix_sparse(pos,rCC)
-ring_data, cycles = count_rings(pos,rCC,max_size=8,return_cycles=True,distinguish_hexagons=True)
+ring_data, cycles = count_rings(pos,rCC,max_size=10,return_cycles=True,distinguish_hexagons=True)
 ring_cntrs = cycle_centers(cycles, pos)
 print(ring_data)
 
