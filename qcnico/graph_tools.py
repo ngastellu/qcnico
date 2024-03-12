@@ -447,15 +447,15 @@ def count_rings(coords,rcut,max_size=16, return_cycles=False, distinguish_hexago
 
     if distinguish_hexagons:
         hexs = np.array([c for c in unique_cycles if (len(c) == 6)]) 
-        c6,i6 = classify_hexagons(hexs)
+        i6,c6 = classify_hexagons(hexs)
 
         new_ring_data = np.zeros(ring_data.shape[0]+1,dtype=int) # now need one more entry to distinguish hexagon types
         new_ring_data[:3] = ring_data[:3]
-        new_ring_data[3] = len(c6)
-        new_ring_data[4] = len(i6)
+        new_ring_data[3] = len(i6)
+        new_ring_data[4] = len(c6)
         new_ring_data[5:] = ring_data[4:]
         
-        if return_cycles:
+        if return_cycles:            
             return new_ring_data, unique_cycles
         else:
             return new_ring_data
@@ -573,7 +573,7 @@ def classify_hexagons(hexagons,strict_filter=True):
     all_hexs = set(range(nhex))
     isolated_hexs = all_hexs - crystalline_hexs
 
-    return crystalline_hexs, isolated_hexs
+    return isolated_hexs, crystalline_hexs
 
     
 def cycle_centers(cycles, pos):
@@ -587,6 +587,121 @@ def cycle_centers(cycles, pos):
         centers[k,:] = np.mean(pos[list(c)],axis=0)
 
     return centers
+
+def label_atoms(pos, cycles, ring_data, distinguish_hexagons=False):
+    cycles_classified = [deque(maxlen=int(n+1)) for n in ring_data] #classifies rings based on their lengths, n+1 in case n=0
+    N = pos.shape[0]
+    n_ring_types = len(ring_data)
+
+    # !!!! distinguish_hexagons=True option is BROKEN !!!!
+    if distinguish_hexagons:
+        hexs = np.array([c for c in cycles if len(c) == 6])
+        i6, c6 = classify_hexagons(hexs)
+        c6 = set([tuple(h) for h in hexs[list(c6)]])
+        i6 = set([tuple(h) for h in hexs[list(i6)]])
+        max_ring_size = n_ring_types + 1
+
+        for c in cycles:
+            l = len(c)
+            if l < 6:
+                cycles_classified[l-3].append(c)
+            elif l == 6:
+                if c in i6:
+                    cycles_classified[3].append(c)
+                else: 
+                    cycles_classified[4].append(c)
+            elif l > 6 and l <= max_ring_size:
+                cycles_classified[l-2].append(c)
+            else:
+                continue
+ 
+        # Cycle assignment strategy: assign each atom to the ring type to which it belongs the most
+        # Tie breaking priority rules:
+        # 1. c6
+        # 2. i6
+        # 3. smallest ring
+        cycle_mem_counts = np.zeros((N,n_ring_types+1), dtype='int') # counts how many n-cycles each atom belongs to
+        for k, lc in enumerate(cycles_classified):
+            lc_arr = np.array([list(c) for c in lc]).flatten().astype(int)
+            iatoms, counts = np.unique(lc_arr,return_counts=True)
+            cycle_mem_counts[iatoms,k] = counts
+        unassigned = (cycle_mem_counts.sum(1) == 0).nonzero()[0] #inds of atoms belonging to no cycles
+        if unassigned.shape[0] > 0:
+            cycle_mem_counts[unassigned,-1] = 1
+        #permute inds to apply tie-break rules (np.argmax keeps 1st ind in case of a tie)
+        permuted_inds = np.array([4,3,0,1,2] + list(range(5,n_ring_types+1)))
+        cycle_mem_counts = cycle_mem_counts[:,permuted_inds]
+        cycle_types = np.argmax(cycle_mem_counts,axis=1)
+        print(cycle_types)
+        
+        # Change cycle_types s.t. cycle_types[k] = size of ring to which pos[k] belongs    
+        cycle_types = permuted_inds[cycle_types] + 3
+        print(cycle_types)
+        cycle_types[cycle_types == 6] = -6 #isolated hexs are labelled by -6
+        cycle_types[(cycle_types > 6)+(cycle_types == 0)] -= 1 # this assigns the correct labels to all rings AND labels unassigned atoms with -1
+ 
+    else:
+        max_ring_size = n_ring_types + 2
+        for c in cycles:
+            l = len(c)
+            if l <= max_ring_size:
+                cycles_classified[l-3].append(c)
+            else: 
+                continue
+
+            # Cycle assignment: strategy same as for `distinguish_hexagons` case above
+            # Tie breaking priority rules:
+            # 1. hexagon
+            # 2. smallest ring
+
+        cycle_mem_counts = np.zeros((N,n_ring_types+1), dtype='int') # counts how many n-cycles each atom belongs to
+        for k, lc in enumerate(cycles_classified):
+            lc_arr = np.array([list(c) for c in lc]).flatten().astype(int)
+            iatoms, counts = np.unique(lc_arr,return_counts=True)
+            print(iatoms.dtype)
+            cycle_mem_counts[iatoms,k] = counts
+        unassigned = (cycle_mem_counts.sum(1) == 0).nonzero()[0] #inds of atoms belonging to no cycles
+        if unassigned.shape[0] > 0:
+            cycle_mem_counts[unassigned,-1] = 1
+
+        #permute columns to apply priority rule (np.argmax keeps 1st ind in case of a tie)
+        permuted_inds = np.array([3,0,1,2] + list(range(4,n_ring_types+1)))
+        cycle_mem_counts = cycle_mem_counts[:,permuted_inds]
+        cycle_types = np.argmax(cycle_mem_counts,axis=1)
+        print(cycle_types)
+        cycle_types = permuted_inds[cycle_types] #unpermute the indices to match the indexing of ring_data (e.g. 0 --> triangles, etc.)
+        cycle_types += 3
+        cycle_types[cycle_types>max_ring_size] = -1 # label unassigned atoms with -1
+    
+    return cycle_types
+
+
+def label_6c_atoms(pos, rCC):
+    _, cycles = count_rings(pos,rCC,max_size=7,return_cycles=True)
+    hexs = np.array([c for c in cycles if len(c) == 6])
+    i6, c6 = classify_hexagons(hexs)
+    cryst_hexs = hexs[list(c6)]
+    cryst_atoms = np.unique(cryst_hexs)
+    labels = np.zeros(pos.shape[0],dtype='bool')
+    labels[cryst_atoms] = True
+    return labels
+
+
+
+
+
+        
+
+
+            
+        
+        
+        
+
+        
+
+
+
 
 
 

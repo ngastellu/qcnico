@@ -36,17 +36,17 @@ print(np.vstack(M.nonzero()))
 # plt.show()
 
 
-c6,i6 = qcngt.classify_hexagons(hexs)
+i6,c6 = qcngt.classify_hexagons(hexs)
 print("Number of crystalline hexagons: ", len(c6))
 print("Number of isolated hexagons: ", len(i6))
 
-# Now, we want to find which index in the cycles array refer to crystalline hexagons
-c6 = np.sort(list(c6))
+# Now, we want to find which index in the cycles array refer to isolated hexagons
+i6 = np.sort(list(i6))
 
 hex_inds = (ring_sizes == 6).nonzero()[0]
-cryst_inds = hex_inds[c6]
+iso_inds = hex_inds[i6]
 
-ring_sizes[cryst_inds] *= -1 #crystalline hexagons are assigned size -6
+ring_sizes[iso_inds] *= -1 #isolated hexagons are assigned size -6
 
 print(ring_data)
 

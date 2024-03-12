@@ -200,9 +200,9 @@ def size_to_clr(n):
         return 'aqua'
     elif n == 5:
         return 'red'
-    elif n == 6:
+    elif n == -6:
         return 'darkgreen'
-    elif n == -6: #crystallite hexagons
+    elif n == 6: #crystallite hexagons
         return "limegreen"
     elif n == 7 or n == 8:
         return 'blue'
@@ -210,14 +210,22 @@ def size_to_clr(n):
         return 'lightsteelblue'
 
 
-def plot_rings_MAC(pos,M,ring_sizes,ring_centers,dotsize_atoms=45.0,dotsize_centers=300.0,plt_objs=None,show=True,return_plt_objs=False):
+def plot_rings_MAC(pos,M,ring_sizes,ring_centers,atom_labels=None,dotsize_atoms=45.0,dotsize_centers=300.0,plt_objs=None,show=True,return_plt_objs=False):
     pos = pos[:,:2] # assume all z coords are 0 (project everything to xy plane)
     ring_centers = ring_centers[:,:2]
     
-    if plt_objs is None:
-        fig, ax = plot_atoms(pos,dotsize=dotsize_atoms,show=False,return_plt_objs=True)
+    if atom_labels is not None:
+        if np.unique(atom_labels).shape[0] > 2:
+            atom_colours = list(map(size_to_clr,atom_labels))
+        else: # if only 6c atoms are labelled (binary labelling)
+            atom_colours = ['limegreen' if l else 'k' for l in atom_labels]
     else:
-        fig, ax = plot_atoms(pos,dotsize=dotsize_atoms,show=False,plt_objs=plt_objs,return_plt_objs=True)
+        atom_colours = ['k'] * pos.shape[0]
+    
+    if plt_objs is None:
+        fig, ax = plot_atoms(pos,colour=atom_colours,dotsize=dotsize_atoms,show=False,return_plt_objs=True)
+    else:
+        fig, ax = plot_atoms(pos,colour=atom_colours,dotsize=dotsize_atoms,show=False,plt_objs=plt_objs,return_plt_objs=True)
 
     pairs = np.vstack(M.nonzero()).T
     
@@ -225,6 +233,7 @@ def plot_rings_MAC(pos,M,ring_sizes,ring_centers,dotsize_atoms=45.0,dotsize_cent
         ax.plot([pos[i,0], pos[j,0]], [pos[i,1], pos[j,1]], 'k-', lw=0.5)
     
     ring_colours = list(map(size_to_clr,ring_sizes))
+        
     ax.scatter(*ring_centers.T,c=ring_colours,s=dotsize_centers)
 
     if return_plt_objs:

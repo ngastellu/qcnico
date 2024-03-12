@@ -20,7 +20,9 @@ for n in labels:
 
 hvals_relaxed = np.hstack([np.load(dir_relaxed + f'hvals-{n}.npy') for n in labels])
 hvals_unrelaxed = np.hstack([np.load(dir_unrelaxed + f'hvals-{n}.npy') for n in labels])
-multiple_histograms((hvals_relaxed,hvals_unrelaxed),('relaxed','unrelaxed'),nbins=30,show=True,title='All')
+multiple_histograms((hvals_relaxed,hvals_unrelaxed),('relaxed','unrelaxed'),nbins=30,show=True,
+                    xlabel = '$H_{ij}$ [eV]',
+                    title='Distribution of tight-binding $H$ matrix elements for relaxed and unrelaxed $T=1$ MAC.\n ')
     
 
     
