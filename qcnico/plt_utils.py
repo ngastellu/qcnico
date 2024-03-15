@@ -88,14 +88,15 @@ def multiple_histograms(vals_arr, labels, nbins=100, colors=None, alpha=0.6, nor
     elif colors is None:
         cyc = rcParams['axes.prop_cycle'] #default plot colours are stored in this `cycler` type object
         colors = [d['color'] for d in list(cyc[0:ndatasets])]
+    
+    if usetex:
+        setup_tex()
 
     if plt_objs is None:
         plt_objs = plt.subplots()
         
     fig, ax = plt_objs
     
-    if usetex:
-        setup_tex()
     
     if title is not None:
         ax.set_title(title)

@@ -6,7 +6,7 @@ from .plt_utils import setup_tex
 from .qchemMAC import MO_rgyr, MCO_com, MCO_rgyr
 
 
-def plot_atoms(pos,dotsize=45.0,colour='k',show_cbar=False, usetex=True,show=True, plt_objs=None, return_plt_objs=False,zorder=3):
+def plot_atoms(pos,dotsize=45.0,colour='k',show_cbar=False, usetex=True,show=True, plt_objs=None,zorder=3):
 
     if pos.shape[1] == 3:
         pos = pos[:,:2]
@@ -37,8 +37,7 @@ def plot_atoms(pos,dotsize=45.0,colour='k',show_cbar=False, usetex=True,show=Tru
     if show:
         plt.show()
         #plt.close()
-
-    if return_plt_objs: # should not be True if `show=True`
+    else: # should not be True if `show=True`
         return fig, ax
 
 def plot_atoms_w_bonds(pos,M,dotsize=45.0,colour='k', bond_colour='k', bond_lw=0.5,usetex=True,show=True, plt_objs=None, return_plt_objs=False):
