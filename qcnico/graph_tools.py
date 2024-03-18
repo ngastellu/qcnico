@@ -380,7 +380,7 @@ def check_bad_cycle(M,cycle,coords):
     return bad_cycle
 
 
-def count_rings(coords,rcut,max_size=16, return_cycles=False, distinguish_hexagons=False):
+def count_rings(coords,rcut,max_size=16, return_cycles=False, distinguish_hexagons=False, return_M=False):
     """Counts all of the atomic rings under a given length in a molecule.
     
     Parameters
@@ -454,16 +454,13 @@ def count_rings(coords,rcut,max_size=16, return_cycles=False, distinguish_hexago
         new_ring_data[3] = len(i6)
         new_ring_data[4] = len(c6)
         new_ring_data[5:] = ring_data[4:]
+
+        ring_data = new_ring_data
         
-        if return_cycles:            
-            return new_ring_data, unique_cycles
-        else:
-            return new_ring_data
-    else:
-        if return_cycles:
-            return ring_data, unique_cycles
-        else:
-            return ring_data
+    out = (ring_data,unique_cycles,M)
+    return_bools = [True, return_cycles, return_M]
+    return tuple(out[i] for i, b in enumerate(return_bools) if b)
+
 
 def components(M, seed_nodes=None):
     '''Returns the connected components of a graph characterised by adjacency matrix M.
@@ -622,7 +619,7 @@ def label_atoms(pos, cycles, ring_data, distinguish_hexagons=False):
         # 3. smallest ring
         cycle_mem_counts = np.zeros((N,n_ring_types+1), dtype='int') # counts how many n-cycles each atom belongs to
         for k, lc in enumerate(cycles_classified):
-            lc_arr = np.array([list(c) for c in lc]).flatten().astype(int)
+            lc_arr = np.array([list(c) for c in lc]).flatten().astype(int) #list of all cycles w length k+3
             iatoms, counts = np.unique(lc_arr,return_counts=True)
             cycle_mem_counts[iatoms,k] = counts
         unassigned = (cycle_mem_counts.sum(1) == 0).nonzero()[0] #inds of atoms belonging to no cycles
