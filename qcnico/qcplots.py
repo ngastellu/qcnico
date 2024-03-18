@@ -209,7 +209,7 @@ def size_to_clr(n):
         return 'lightsteelblue'
 
 
-def plot_rings_MAC(pos,M,ring_sizes,ring_centers,atom_labels=None,dotsize_atoms=45.0,dotsize_centers=300.0,plt_objs=None,show=True,return_plt_objs=False):
+def plot_rings_MAC(pos,M,ring_sizes,ring_centers,atom_labels=None,dotsize_atoms=45.0,dotsize_centers=300.0,plt_objs=None,show=True):
     pos = pos[:,:2] # assume all z coords are 0 (project everything to xy plane)
     ring_centers = ring_centers[:,:2]
     
@@ -222,9 +222,9 @@ def plot_rings_MAC(pos,M,ring_sizes,ring_centers,atom_labels=None,dotsize_atoms=
         atom_colours = ['k'] * pos.shape[0]
     
     if plt_objs is None:
-        fig, ax = plot_atoms(pos,colour=atom_colours,dotsize=dotsize_atoms,show=False,return_plt_objs=True,zorder=10)
+        fig, ax = plot_atoms(pos,colour=atom_colours,dotsize=dotsize_atoms,show=False,zorder=10)
     else:
-        fig, ax = plot_atoms(pos,colour=atom_colours,dotsize=dotsize_atoms,show=False,plt_objs=plt_objs,return_plt_objs=True,zorder=10)
+        fig, ax = plot_atoms(pos,colour=atom_colours,dotsize=dotsize_atoms,show=False,plt_objs=plt_objs,zorder=10)
 
     pairs = np.vstack(M.nonzero()).T
     
@@ -235,8 +235,8 @@ def plot_rings_MAC(pos,M,ring_sizes,ring_centers,atom_labels=None,dotsize_atoms=
         
     ax.scatter(*ring_centers.T,c=ring_colours,s=dotsize_centers)
 
-    if return_plt_objs:
-        return fig, ax
 
     if show:
         plt.show()
+    else:
+        return fig, ax
