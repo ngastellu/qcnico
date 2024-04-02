@@ -32,7 +32,7 @@ def setup_tex(fontsize=18,preamble_str=None):
 
 
 def histogram(values,nbins=100,normalised=False,density=False,xlabel=None,ylabel=None,log_counts=False,
-              plt_objs=None,show=True,plt_kwargs=None,print_dx=True,return_data=False):
+              plt_objs=None,show=True,plt_kwargs=None,print_dx=True,return_data=False,return_data_w_dx=False):
     hist, bins = np.histogram(values,nbins,density=density)
     dx = bins[1:] - bins[:-1]
     centers = (bins[1:] + bins[:-1])/2
@@ -73,9 +73,24 @@ def histogram(values,nbins=100,normalised=False,density=False,xlabel=None,ylabel
 
     if show:
         plt.show()
+    
+    else:
+        if return_data:
+            return fig, ax, centers, hist
+        
+        elif return_data_w_dx:
+            return fig, ax, centers, hist, dx
+        
+        else:
+            return fig, ax
+
      
     if return_data:
         return centers, hist
+    
+    elif return_data_w_dx:
+        return centers, hist, dx
+    
 
 
 def multiple_histograms(vals_arr, labels, nbins=100, colors=None, alpha=0.6, normalised=False,density=False,xlabel=None,ylabel=None,log_counts=False,
@@ -114,7 +129,7 @@ def multiple_histograms(vals_arr, labels, nbins=100, colors=None, alpha=0.6, nor
                 plt.legend()
                 plt.show()
             else: 
-                histogram(vals, labels[k], nbins=nbins, normalised=normalised, density=density, xlabel=xlabel, ylabel=ylabel,
+                histogram(vals, nbins=nbins, normalised=normalised, density=density, xlabel=xlabel, ylabel=ylabel,
                           log_counts=log_counts, plt_objs=plt_objs, plt_kwargs=plt_kwargs2, print_dx=print_dx, show=False)
                 return fig, ax
         

@@ -6,7 +6,7 @@ from qcnico.qcplots import plot_rings_MAC
 from qcnico.coords_io import read_xyz
 
 
-pos_path = '/Users/nico/Desktop/simulation_outputs/MAC_structures/kMC/4x4_ensemble/kMC_MAC_4x4-101.xyz'
+pos_path = '/Users/nico/Desktop/simulation_outputs/MAP_training/conditionedp6dot9.xyz'
 pos = read_xyz(pos_path)
 rCC = 1.8
 M = adjacency_matrix_sparse(pos,rCC)
