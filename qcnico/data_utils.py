@@ -89,3 +89,12 @@ def read_dat_file(datfile):
     return x, y
 
     
+def get_successful_inds(datadir, filename_template, extension, pre_label='-'):
+    """Looks in `datadir` for files of the form '{filename_template}{pre_label}n.{extension}',
+    where `n` is an integer, `extension` is a file type (e.g. 'npy') and `pre_label` is usually
+    '-' (by default). Returns the list of integers. 
+    Useful to verify which runs in a job array ran successfully produced output files."""
+    datfiles = glob(path.join(datadir, filename_template + pre_label + '*.' + extension))
+    
+    isucc = sorted([int(f.split(pre_label)[-1].split('.'+extension)[0]) for f in datfiles])
+    return isucc #hehe
