@@ -128,6 +128,9 @@ def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_
     if show:
         plt.show()
 
+    else:
+        return fig, ax1
+
 
 def plot_MCO(pos,P,Pbar,n,dotsize=45.0,show_COM=False,show_rgyr=False,plot_dual=False,usetex=True,show=True):
 
@@ -229,7 +232,7 @@ def plot_rings_MAC(pos,M,ring_sizes,ring_centers,atom_labels=None,dotsize_atoms=
     pairs = np.vstack(M.nonzero()).T
     
     for i,j in pairs:
-        ax.plot([pos[i,0], pos[j,0]], [pos[i,1], pos[j,1]], 'k-', lw=0.5,zorder=1)
+        ax.plot([pos[i,0], pos[j,0]], [pos[i,1], pos[j,1]], 'k-', lw=0.8,zorder=10)
     
     ring_colours = list(map(size_to_clr,ring_sizes))
         
