@@ -21,7 +21,7 @@ def plot_atoms(pos,dotsize=45.0,colour='k',show_cbar=False, usetex=True,show=Tru
     else:
         fig, ax = plt_objs
 
-    ye = ax.scatter(*pos.T, c=colour, s=dotsize,zorder=zorder)
+    ye = ax.scatter(*pos.T, c=colour, s=dotsize, zorder=zorder)
 
     #uncomment below to remove whitespace around plot
     #fig.subplots_adjust(left=0,right=1,bottom=0,top=1)
