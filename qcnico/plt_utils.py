@@ -32,7 +32,7 @@ def setup_tex(fontsize=18,preamble_str=None):
 
 
 def histogram(values,nbins=100,normalised=False,density=False,xlabel=None,ylabel=None,log_counts=False,
-              plt_objs=None,show=True,plt_kwargs=None,print_dx=True,return_data=False,return_data_w_dx=False):
+              plt_objs=None,show=True,usetex=True,plt_kwargs=None,print_dx=True,return_data=False,return_data_w_dx=False):
     hist, bins = np.histogram(values,nbins,density=density)
     dx = bins[1:] - bins[:-1]
     centers = (bins[1:] + bins[:-1])/2
@@ -51,6 +51,9 @@ def histogram(values,nbins=100,normalised=False,density=False,xlabel=None,ylabel
     else:
         fig, ax = plt.subplots()
     
+    if usetex:
+        setup_tex()
+
     if plt_kwargs: # Note: plt_kwargs is a dictionary of keyword arguments
         if 'color' in plt_kwargs:
             ax.bar(centers, hist,align='center',width=dx,**plt_kwargs)
