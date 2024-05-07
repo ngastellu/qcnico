@@ -64,7 +64,7 @@ def plot_atoms_w_bonds(pos,M,dotsize=45.0,colour='k', bond_colour='k', bond_lw=0
 
 
 
-def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_rgyr=False, plot_amplitude=False, scale_up=1.0, com_clr = 'r', title=None, usetex=True, show=True, plt_objs=None):
+def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_rgyr=False, plot_amplitude=False, scale_up=1.0, com_clr = 'r', title=None, usetex=True, show=True, plt_objs=None,zorder=1):
 
     if pos.shape[1] == 3:
         pos = pos[:,:2]
@@ -97,9 +97,9 @@ def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_
     sizes[density > 0.001] *= scale_up #increase size of high-probability sites
     
     if plot_amplitude:
-        ye = ax1.scatter(pos.T[0,:],pos.T[1,:],c=psi,s=sizes,cmap=cmap,norm=colors.CenteredNorm()) #CenteredNorm() sets center of cbar to 0
+        ye = ax1.scatter(pos.T[0,:],pos.T[1,:],c=psi,s=sizes,cmap=cmap,norm=colors.CenteredNorm(),zorder=zorder) #CenteredNorm() sets center of cbar to 0
     else:
-        ye = ax1.scatter(pos.T[0,:],pos.T[1,:],c=density,s=sizes,cmap=cmap) #CenteredNorm() sets center of cbar to 0
+        ye = ax1.scatter(pos.T[0,:],pos.T[1,:],c=density,s=sizes,cmap=cmap,zorder=zorder) #CenteredNorm() sets center of cbar to 0
 
     cbar = fig.colorbar(ye,ax=ax1,orientation='vertical')
 
@@ -116,10 +116,10 @@ def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_
     ax1.set_aspect('equal')
     if show_COM or show_rgyr:
         com = density @ pos
-        ax1.scatter(*com, s=dotsize*10,marker='*',c=com_clr)
+        ax1.scatter(*com, s=dotsize*10,marker='*',c=com_clr,zorder=zorder+1)
     if show_rgyr:
         rgyr = MO_rgyr(pos,MO_matrix,n,center_of_mass=com)
-        loc_circle = plt.Circle(com, rgyr, fc='none', ec=com_clr, ls='--', lw=1.0)
+        loc_circle = plt.Circle(com, rgyr, fc='none', ec=com_clr, ls='--', lw=1.0,zorder=zorder+1)
         ax1.add_patch(loc_circle)
 
     #line below turns off x and y ticks 
