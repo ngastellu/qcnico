@@ -474,7 +474,7 @@ def components(M, seed_nodes=None):
     seen = set()
     clusters = []
     if seed_nodes is None:
-        seed_nodes = range(N) #if no seed nodes are
+        seed_nodes = range(N) #if no seed nodes are specified, search across all nodes in the graph
     for i in seed_nodes:
         if i not in seen:
             # do a breadth-first search starting from each unseen node

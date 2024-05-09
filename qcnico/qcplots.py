@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import rcParams, colors
 from .plt_utils import setup_tex
-from .qchemMAC import MO_rgyr, MCO_com, MCO_rgyr
+from .qchemMAC import MO_rgyr, MCO_com, MCO_rgyr, MO_rgyr_hyperlocal
 
 
 def plot_atoms(pos,dotsize=45.0,colour='k',show_cbar=False, usetex=True,show=True, plt_objs=None,zorder=3):
@@ -64,7 +64,7 @@ def plot_atoms_w_bonds(pos,M,dotsize=45.0,colour='k', bond_colour='k', bond_lw=0
 
 
 
-def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_rgyr=False, plot_amplitude=False, scale_up=1.0, com_clr = 'r', title=None, usetex=True, show=True, plt_objs=None,zorder=1):
+def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_rgyr=False, plot_amplitude=False, scale_up=1.0, com_clr = 'r', title=None, usetex=True, show=True, plt_objs=None,zorder=1,scale_up_threshold=0.001):
 
     if pos.shape[1] == 3:
         pos = pos[:,:2]
@@ -94,7 +94,7 @@ def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_
 
     sizes = dotsize * np.ones(pos.shape[0])
 
-    sizes[density > 0.001] *= scale_up #increase size of high-probability sites
+    sizes[density > scale_up_threshold] *= scale_up #increase size of high-probability sites
     
     if plot_amplitude:
         ye = ax1.scatter(pos.T[0,:],pos.T[1,:],c=psi,s=sizes,cmap=cmap,norm=colors.CenteredNorm(),zorder=zorder) #CenteredNorm() sets center of cbar to 0
