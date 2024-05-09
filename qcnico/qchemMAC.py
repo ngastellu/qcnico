@@ -353,22 +353,29 @@ def interference_matrix_MO(e,M,energy_lvls,gamL,gamR):
 
     return A * (B.T)
 
-def MO_com(pos, MO_matrix, n=None):
+def MO_com(pos, MO_matrix, n=None,renormalise=False):
 
     if n is not None:
-        psi = np.abs(MO_matrix[:,n]**2)
+        psi = np.abs(MO_matrix[:,n])**2
     else:
-        psi = np.abs(MO_matrix**2)
+        psi = np.abs(MO_matrix)**2
+
+    if renormalise:
+            psi /= psi.sum(0)
+
     return psi.T @ pos
 
 
-def MO_rgyr(pos,MO_matrix,n=None,center_of_mass=None):
+def MO_rgyr(pos,MO_matrix,n=None,center_of_mass=None,renormalise=False):
 
     if n is None:
-        psi = np.abs(MO_matrix**2)
+        psi = np.abs(MO_matrix)**2
     else:
         psi = np.abs(MO_matrix[:,n])**2
 
+    if renormalise:
+            psi /= psi.sum(0)
+    
     if center_of_mass is None:
         com = psi.T @ pos
 
@@ -529,3 +536,31 @@ def alpha_LEGS(M,n=None):
         psis = M[:,n]
     
     return np.abs((psis * np.abs(psis)).sum(axis=0))
+
+def MO_com_hyperlocal(pos, MO_matrix, n=None):
+
+    if n is not None:
+        psi = np.abs(MO_matrix[:,n])**4
+    else:
+        psi = np.abs(MO_matrix)**4
+    
+    psi /= psi.sum(0)
+    return psi.T @ pos
+
+
+def MO_rgyr_hyperlocal(pos,MO_matrix,n=None):
+
+    if n is None:
+        psi = np.abs(MO_matrix)**4
+    else:
+        psi = np.abs(MO_matrix[:,n])**4
+
+    psi /= psi.sum(0)
+
+    com = psi.T @ pos
+
+    R_squared = (pos*pos).sum(axis=-1) #fast way to compute square length of all position vectors
+    R_squared_avg = R_squared @ psi
+
+    #return np.sqrt(R_squared_avg - (com @ com))
+    return np.sqrt(R_squared_avg - (com*com).sum(-1))
