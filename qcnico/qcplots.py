@@ -64,7 +64,9 @@ def plot_atoms_w_bonds(pos,M,dotsize=45.0,colour='k', bond_colour='k', bond_lw=0
 
 
 
-def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_rgyr=False, plot_amplitude=False, scale_up=1.0, com_clr = 'r', title=None, usetex=True, show=True, plt_objs=None,zorder=1,scale_up_threshold=0.001):
+def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_rgyr=False, plot_amplitude=False, 
+            scale_up=1.0, com_clr = 'r', title=None, usetex=True, show=True, plt_objs=None, zorder=1,scale_up_threshold=0.001,
+            show_cbar=True,loc_centers=None, loc_radii=None, c_clrs='r',c_markers='h',c_labels=None):
 
     if pos.shape[1] == 3:
         pos = pos[:,:2]
@@ -101,7 +103,8 @@ def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_
     else:
         ye = ax1.scatter(pos.T[0,:],pos.T[1,:],c=density,s=sizes,cmap=cmap,zorder=zorder) #CenteredNorm() sets center of cbar to 0
 
-    cbar = fig.colorbar(ye,ax=ax1,orientation='vertical')
+    if show_cbar:
+        cbar = fig.colorbar(ye,ax=ax1,orientation='vertical')
 
     if title is None:
         if plot_amplitude:
@@ -114,13 +117,18 @@ def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_
     ax1.set_xlabel('$x$ [\AA]')
     ax1.set_ylabel('$y$ [\AA]')
     ax1.set_aspect('equal')
+    
     if show_COM or show_rgyr:
         com = density @ pos
-        ax1.scatter(*com, s=dotsize*10,marker='*',c=com_clr,zorder=zorder+1)
+        if not show_rgyr:
+            ax1 = add_MO_centers(com[None,:],ax1,marker='*',clr=com_clr,dotsize=dotsize*10,zorder=zorder+1)
     if show_rgyr:
         rgyr = MO_rgyr(pos,MO_matrix,n,center_of_mass=com)
-        loc_circle = plt.Circle(com, rgyr, fc='none', ec=com_clr, ls='--', lw=1.0,zorder=zorder+1)
-        ax1.add_patch(loc_circle)
+        print('RGYR = ', rgyr)
+        ax1 = add_MO_centers(com[None,:],ax1,[rgyr],clr=com_clr,zorder=zorder+1)
+
+    if loc_centers is not None:
+        ax1 = add_MO_centers(loc_centers,ax1,radii=loc_radii,clr=c_clrs,marker=c_markers,labels=c_labels,dotsize=dotsize*10,zorder=zorder+1)    
 
     #line below turns off x and y ticks 
     #ax1.tick_params(axis='both',which='both',bottom=False,top=False,right=False, left=False)
@@ -130,6 +138,56 @@ def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_
 
     else:
         return fig, ax1
+
+
+def add_MO_centers(centers, ax, radii=None,  clr='r', marker='*',labels=None , dotsize=10,zorder=2,ls='--',lw=1.0):
+    """This function adds localisation centers (either COM or hopping sites) to a pre-existing MO figure.
+    
+    Parameters
+    ----------
+    centers: `np.ndarray`, shape=(N,2)
+        Array containing Cartesian coords of the points
+    ax: `matplotlib.axes.Axes`
+        Axes object of the MO plot
+    clr: `str` or `list` of `str`
+        String(s) describing the colour(s) of the centers on the plot
+    marker: `str`
+        String(s) describing the marker style(s) of the centers on the plot
+    labels:  `str` or `list` of `str`
+        Labels of the centers
+    dotsize: `float`
+        Dot size of the centers on the plot
+    ls: `str` or `list` of `str`
+        String(s) describing the linestyle(s) of the radii on the plot
+    lw: `float` or iterable of `float`
+       Linewidth(s) of the radii on the plot
+    
+    Returns
+    -------
+    ax: Same as input arg, but of the modified figure
+    """
+
+    if labels is not None:
+        if isinstance(labels,list):
+            ax.scatter(*centers[-1].T, s=dotsize*10,marker=marker,c=clr,zorder=zorder,label=labels)
+        else: #if only a single label is specicfied, apply it only to the last center (avoids having many times the same legend)
+            ax.scatter(*centers[:-1].T, s=dotsize*10,marker=marker,c=clr,zorder=zorder)
+            ax.scatter(*centers[-1].T, s=dotsize*10,marker=marker,c=clr,zorder=zorder,label=labels)
+    else:
+        ax.scatter(*centers.T, s=dotsize*10,marker=marker,c=clr,zorder=zorder+1)
+    
+    if radii is not None:
+        assert len(radii) == centers.shape[0], f'Number of radii ({len(radii)}) does not match number of centers ({centers.shape[0]})!'
+        if not isinstance(clr, list):
+            clr = [clr] * len(radii) 
+        if not isinstance(ls, list):
+            ls = [ls] * len(radii) 
+        if not isinstance(lw, list) and not isinstance(lw,np.ndarray):
+            lw = [lw] * len(radii) 
+        for c, r, cl, w, s in zip(centers,radii,clr,lw,ls):
+            loc_circle = plt.Circle(c, r, fc='none', ec=cl, ls=s, lw=w,zorder=zorder)
+            ax.add_patch(loc_circle)
+    return ax
 
 
 def plot_MCO(pos,P,Pbar,n,dotsize=45.0,show_COM=False,show_rgyr=False,plot_dual=False,usetex=True,show=True):
