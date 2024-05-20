@@ -66,7 +66,7 @@ def plot_atoms_w_bonds(pos,M,dotsize=45.0,colour='k', bond_colour='k', bond_lw=0
 
 def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_rgyr=False, plot_amplitude=False, 
             scale_up=1.0, com_clr = 'r', title=None, usetex=True, show=True, plt_objs=None, zorder=1,scale_up_threshold=0.001,
-            show_cbar=True,loc_centers=None, loc_radii=None, c_clrs='r',c_markers='h',c_labels=None):
+            show_cbar=True,loc_centers=None, loc_radii=None, c_clrs='r',c_markers='h',c_labels=None,c_rel_size=5):
 
     if pos.shape[1] == 3:
         pos = pos[:,:2]
@@ -121,14 +121,14 @@ def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_
     if show_COM or show_rgyr:
         com = density @ pos
         if not show_rgyr:
-            ax1 = add_MO_centers(com[None,:],ax1,marker='*',clr=com_clr,dotsize=dotsize*10,zorder=zorder+1)
+            ax1 = add_MO_centers(com[None,:],ax1,marker='*',clr=com_clr,dotsize=dotsize*c_rel_size,zorder=zorder+1)
     if show_rgyr:
         rgyr = MO_rgyr(pos,MO_matrix,n,center_of_mass=com)
         print('RGYR = ', rgyr)
         ax1 = add_MO_centers(com[None,:],ax1,[rgyr],clr=com_clr,zorder=zorder+1)
 
     if loc_centers is not None:
-        ax1 = add_MO_centers(loc_centers,ax1,radii=loc_radii,clr=c_clrs,marker=c_markers,labels=c_labels,dotsize=dotsize*10,zorder=zorder+1)    
+        ax1 = add_MO_centers(loc_centers,ax1,radii=loc_radii,clr=c_clrs,marker=c_markers,labels=c_labels,dotsize=dotsize*c_rel_size,zorder=zorder+1)    
 
     #line below turns off x and y ticks 
     #ax1.tick_params(axis='both',which='both',bottom=False,top=False,right=False, left=False)
