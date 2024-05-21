@@ -169,12 +169,12 @@ def add_MO_centers(centers, ax, radii=None,  clr='r', marker='*',labels=None , d
 
     if labels is not None:
         if isinstance(labels,list):
-            ax.scatter(*centers[-1].T, s=dotsize*10,marker=marker,c=clr,zorder=zorder,label=labels)
+            ax.scatter(*centers[-1].T, s=dotsize,marker=marker,c=clr,zorder=zorder,label=labels)
         else: #if only a single label is specicfied, apply it only to the last center (avoids having many times the same legend)
-            ax.scatter(*centers[:-1].T, s=dotsize*10,marker=marker,c=clr,zorder=zorder)
-            ax.scatter(*centers[-1].T, s=dotsize*10,marker=marker,c=clr,zorder=zorder,label=labels)
+            ax.scatter(*centers[:-1].T, s=dotsize,marker=marker,c=clr,zorder=zorder)
+            ax.scatter(*centers[-1].T, s=dotsize,marker=marker,c=clr,zorder=zorder,label=labels)
     else:
-        ax.scatter(*centers.T, s=dotsize*10,marker=marker,c=clr,zorder=zorder+1)
+        ax.scatter(*centers.T, s=dotsize,marker=marker,c=clr,zorder=zorder+1)
     
     if radii is not None:
         assert len(radii) == centers.shape[0], f'Number of radii ({len(radii)}) does not match number of centers ({centers.shape[0]})!'
