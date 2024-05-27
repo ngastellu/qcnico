@@ -537,23 +537,23 @@ def alpha_LEGS(M,n=None):
     
     return np.abs((psis * np.abs(psis)).sum(axis=0))
 
-def MO_com_hyperlocal(pos, MO_matrix, n=None):
+def MO_com_hyperlocal(pos, MO_matrix, n=None,psi_pow=4):
 
     if n is not None:
-        psi = np.abs(MO_matrix[:,n])**4
+        psi = np.abs(MO_matrix[:,n])**psi_pow
     else:
-        psi = np.abs(MO_matrix)**4
+        psi = np.abs(MO_matrix)**psi_pow
     
     psi /= psi.sum(0)
     return psi.T @ pos
 
 
-def MO_rgyr_hyperlocal(pos,MO_matrix,n=None):
+def MO_rgyr_hyperlocal(pos,MO_matrix,n=None,psi_pow=4):
 
     if n is None:
-        psi = np.abs(MO_matrix)**4
+        psi = np.abs(MO_matrix)**psi_pow
     else:
-        psi = np.abs(MO_matrix[:,n])**4
+        psi = np.abs(MO_matrix[:,n])**psi_pow
 
     psi /= psi.sum(0)
 
