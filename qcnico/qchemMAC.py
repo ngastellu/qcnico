@@ -558,7 +558,7 @@ def MO_rgyr_hyperlocal(pos,MO_matrix,n=None,psi_pow=4):
     psi /= psi.sum(0)
 
     com = psi.T @ pos
-
+    
     R_squared = (pos*pos).sum(axis=-1) #fast way to compute square length of all position vectors
     R_squared_avg = R_squared @ psi
 
