@@ -46,9 +46,9 @@ def plot_atoms_w_bonds(pos,M,dotsize=45.0,colour='k', bond_colour='k', bond_lw=0
         setup_tex()
 
     if plt_objs is None:
-        fig, ax = plot_atoms(pos,dotsize=dotsize,colour=colour,show=False,return_plt_objs=True)
+        fig, ax = plot_atoms(pos,dotsize=dotsize,colour=colour,show=False)
     else:
-        fig, ax = plot_atoms(pos,dotsize=dotsize,colour=colour,show=False,plt_objs=plt_objs,return_plt_objs=True)
+        fig, ax = plot_atoms(pos,dotsize=dotsize,colour=colour,show=False,plt_objs=plt_objs)
 
     pairs = np.vstack(M.nonzero()).T
     
