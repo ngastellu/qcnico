@@ -527,16 +527,18 @@ def hexagon_adjmat(hexagons):
     return Mhex
 
 
-def classify_hexagons(hexagons,strict_filter=True):
+def classify_hexagons(hexagons,strict_filter=True,return_cryst_clusters=False):
     """Separates hexagons into two classes: 
         * isolated 
         * crystallite
     Crystallites are regions of the MAC sample comprised of only hexagons whose surface area is 
-    greater than or equal to one hexagon surrounded with six other hexagons.
+    greater than or equal to one hexagon surrounded with six other hexagons (a 'snowflake motif'). If a hexagon is part of
+    such a cluster of hexagons, but more than 2 hexagons removed from a snowflake motif, it is deemed isolated (i.e. not part of
+    the crystallite).
     
    **** N.B. ****
-   Returns two lists of INDICES which refer to elements of hexagons. For this function to work,
-   ensure the heaxagons is an ORDERED iterable (e.g. not a `set`)."""
+   Returns two lists of INDICES which refer to elements of `hexagons`. For this function to work,
+   ensure the hexagons is an ORDERED iterable (e.g. not a `set`)."""
     
     hexagons = np.array(hexagons) # cast hexagons as ndarray to make things easier down the road (None indexing, etc.)    
     nhex = hexagons.shape[0]
@@ -570,7 +572,10 @@ def classify_hexagons(hexagons,strict_filter=True):
     all_hexs = set(range(nhex))
     isolated_hexs = all_hexs - crystalline_hexs
 
-    return isolated_hexs, crystalline_hexs
+    if return_cryst_clusters:
+        return isolated_hexs, crystalline_hexs, crystalline_clusters
+    else:
+        return isolated_hexs, crystalline_hexs
 
     
 def cycle_centers(cycles, pos):
