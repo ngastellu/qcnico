@@ -566,8 +566,8 @@ def classify_hexagons(hexagons,strict_filter=True,return_cryst_clusters=False):
         crystalline_hexs = set(np.concatenate((nuclei,nuclei_neighbs,nuclei_next_neighbs)))
 
         if return_cryst_clusters:
-            from jitted_clusters import get_clusters
-            crystalline_clusters = get_clusters(nuclei,nuclei_neighbs,nuclei_next_neighbs,Mhex,crystalline_hexs)
+            from .jitted_cluster_utils import get_clusters
+            crystalline_clusters = get_clusters(nuclei,Mhex,crystalline_hexs)
 
     else:
         crystalline_clusters = components(Mhex, seed_nodes=nuclei)
