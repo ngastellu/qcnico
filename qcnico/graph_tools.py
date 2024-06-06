@@ -565,6 +565,10 @@ def classify_hexagons(hexagons,strict_filter=True,return_cryst_clusters=False):
 
         crystalline_hexs = set(np.concatenate((nuclei,nuclei_neighbs,nuclei_next_neighbs)))
 
+        if return_cryst_clusters:
+            from jitted_clusters import get_clusters
+            crystalline_clusters = get_clusters(nuclei,nuclei_neighbs,nuclei_next_neighbs,Mhex,crystalline_hexs)
+
     else:
         crystalline_clusters = components(Mhex, seed_nodes=nuclei)
         crystalline_hexs = reduce(set.union, crystalline_clusters) #set of all crystalline hexagons (one big set as opposed to list of sets)  
@@ -590,6 +594,7 @@ def cycle_centers(cycles, pos):
 
     return centers
 
+    
 def label_atoms(pos, cycles, ring_data, distinguish_hexagons=False):
     cycles_classified = [deque(maxlen=int(n+1)) for n in ring_data] #classifies rings based on their lengths, n+1 in case n=0
     N = pos.shape[0]
