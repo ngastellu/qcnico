@@ -50,13 +50,13 @@ def get_clusters(nuclei,Mhex,strict_6c):
     strict_clusters: `set` of `tuple`s of `int`s
         Set of all crystalline clusters (i.e. tuples of integers indeing the hexagons).
     """
-    lax_clusters = jitted_components(Mhex,seed_nodes=nuclei) #crystalline clusters defined using loose criterion
-    lax_6c = set()
-    for c in lax_clusters:
+    lax_clusters = jitted_components(Mhex,seed_nodes=set(nuclei)) #crystalline clusters defined using loose criterion
+    lax_6c = lax_clusters[0]
+    for c in lax_clusters[1:]:
         lax_6c = lax_6c.union(c)
     ignore_6c = lax_6c - strict_6c #hexs that are crystalline by lax standards but noy by strict standards
     for i in list(ignore_6c):
         Mhex[i,:] = False
         Mhex[:,i] = False
-    strict_clusters = jitted_components(Mhex, seed_nodes=nuclei)
+    strict_clusters = jitted_components(Mhex, seed_nodes=set(nuclei))
     return strict_clusters
