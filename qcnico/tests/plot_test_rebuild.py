@@ -9,7 +9,7 @@ from qcnico.coords_io import read_xyz
 from qcnico.jitted_cluster_utils import get_clusters
 
 
-ddir = '/Users/nico/Desktop/simulation_outputs/structural_characteristics_MAC/crystallite_sizes/subsample_tests/'
+ddir = '/Users/nico/Desktop/simulation_outputs/structural_characteristics_MAC/crystallite_sizes/subsample_tests/40x40/'
 
 pos = read_xyz(ddir + 'bigMAC-1_relaxed_no-dangle.xyz')
 
