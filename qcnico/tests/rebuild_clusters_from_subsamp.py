@@ -18,9 +18,9 @@ start = perf_counter()
 m,n = slice_inds[0,:]
 
 print(f'Initialising hash maps (m,n) = ({m,n})',flush=True)
-pos_global = {tuple(r):k for k,r in enumerate(np.load(f'hex_centers-{nn}_{m}_{n}.npy'))} # global hashtable mapping hexagin centers to integer indices
+pos_global = {tuple(r):k for k,r in enumerate(np.load(f'sample-{nn}/hex_centers-{nn}_{m}_{n}.npy'))} # global hashtable mapping hexagin centers to integer indices
 
-M = np.load(f'M_hex-{nn}_{m}_{n}.npy')
+M = np.load(f'sample-{nn}/M_hex-{nn}_{m}_{n}.npy')
 neighb_list = {k:tuple(M[k,:].nonzero()[0]) for k in range(M.shape[0])}
 
 ncentres_tot = M.shape[0]
@@ -32,7 +32,7 @@ print('Done! Commencing loop over other subsamples...',flush=True)
 for mn in slice_inds[1:]:
     m,n = mn
     print(f'\n------ {(m,n)} ------',flush=True)
-    pos = np.load(f'hex_centers-{nn}_{m}_{n}.npy')
+    pos = np.load(f'sample-{nn}/hex_centers-{nn}_{m}_{n}.npy')
     print(f'{pos.shape[0]} distinct crystalline centers.', flush=True)
     local_map = {k:-1 for k in range(pos.shape[0])} # hashtable that maps centre indices local to the NPY being processed to their global index (i.e. in `pos_global`)  
 
@@ -53,7 +53,7 @@ for mn in slice_inds[1:]:
 
     print('Loop 2: ', end='',flush=True)
     # next, update neighbour list using global hashmap
-    M = np.load(f'M_hex-{nn}_{m}_{n}.npy')
+    M = np.load(f'sample-{nn}/M_hex-{nn}_{m}_{n}.npy')
     for k in range(pos.shape[0]):
         k_global = local_map[k]
         ineighbs_local = tuple(M[:,k].nonzero()[0])
@@ -115,8 +115,7 @@ nuclei_next_neighbs = np.unique(Mglobal2[nuclei,:].nonzero()[1])
 strict_6c = set(np.concatenate((nuclei,nuclei_neighbs,nuclei_next_neighbs)))
 cluster_start = perf_counter()
 print(f'[{cluster_start - start} seconds later] Starting `get_clusters`...',flush=True)
-Mglobal = Mglobal.tolil() #convert to LIL format: fast row-slicing and efficient updates to sparsity structure
-crystalline_clusters = get_clusters(nuclei, Mglobal, strict_6c)
+crystalline_clusters = get_clusters(nuclei, Mglobal.toarray(), strict_6c)
 end = perf_counter()
 print(f'**** Done! Total time = {end - start} seconds. Time spent in `get_cluster` = {end - cluster_start} seconds ****',flush=True)
 
