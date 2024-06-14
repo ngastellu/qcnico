@@ -3,13 +3,17 @@
 
 import pickle
 import sys
+from time import perf_counter
 from qcnico.lattice import cartesian_product
 from qcnico.jitted_cluster_utils import get_clusters
 import numpy as np
+from scipy import sparse
 
 
 nn = sys.argv[1]
 slice_inds = cartesian_product(np.arange(4),np.arange(4))
+
+start = perf_counter()
 
 m,n = slice_inds[0,:]
 
@@ -60,8 +64,12 @@ for mn in slice_inds[1:]:
             neighb_list[k_global] = tuple(local_map[p] for p in ineighbs_local)
     print('Done!',flush=True)
 
+end = perf_counter()
+print(f'\n**** Building hashtables took {end-start} seconds. ****\n',flush=True)
 
 print('Constructing global hexagon adjacency matrix...', flush=True)
+start = perf_counter()
+
 Mglobal = np.zeros((ncentres_tot,ncentres_tot),dtype=bool)
 
 isnucleus = np.zeros(ncentres_tot,dtype=bool)
@@ -77,12 +85,12 @@ for k in range(ncentres_tot):
          isnucleus[k] = True
     elif nb_neighbs > 6:
         isweird[k] = True
+end = perf_counter()
+print(f'**** Done! [{end - start} seconds] ****\nSaving stuff.', flush=True)
 
-print('Done! Saving stuff.', flush=True)
+np.save(f'Mhex_global-{nn}.npy',Mglobal)
 
-np.save('Mhex_global-{nn}.npy',Mglobal)
-
-with open('centres_hashmap-{nn}.pkl', 'wb') as fo:
+with open(f'centres_hashmap-{nn}.pkl', 'wb') as fo:
     pickle.dump(pos_global,fo)
 
 with open('neighbs_dict.pkl', 'wb') as fo:
@@ -99,13 +107,18 @@ if isweird.sum() > 0:
 
 
 print('Searching for clusters...',flush=True)
-Mglobal = Mglobal.astype(np.int8)
-nuclei_neighbs = Mglobal[:,nuclei].nonzero()[0]
+start = perf_counter()
+Mglobal = sparse.csr_array(Mglobal.astype(np.int8)) #use sparse CSR matrix: DRAMATICALLY speeds up matrix product
+nuclei_neighbs = np.unique(Mglobal[nuclei,:].nonzero()[1])
 Mglobal2 = Mglobal @ Mglobal
-nuclei_next_neighbs = Mglobal2[:,nuclei].nonzero()[0]
+nuclei_next_neighbs = np.unique(Mglobal2[nuclei,:].nonzero()[1])
 strict_6c = set(np.concatenate((nuclei,nuclei_neighbs,nuclei_next_neighbs)))
+cluster_start = perf_counter()
+print(f'[{cluster_start - start} seconds later] Starting `get_clusters`...',flush=True)
+Mglobal = Mglobal.tolil() #convert to LIL format: fast row-slicing and efficient updates to sparsity structure
 crystalline_clusters = get_clusters(nuclei, Mglobal, strict_6c)
-print('Done!',flush=True)
+end = perf_counter()
+print(f'**** Done! Total time = {end - start} seconds. Time spent in `get_cluster` = {end - cluster_start} seconds ****',flush=True)
 
 cluster_sizes = np.array([len(c) for c in crystalline_clusters])
 np.save(f'cryst_cluster_sizes-{nn}.npy',cluster_sizes)
