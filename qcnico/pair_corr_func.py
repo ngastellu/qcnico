@@ -64,6 +64,6 @@ def pair_correlation_hist(structure,L,rmin,rmax,Nbins,method='kdtree'):
     mid_points = (bin_edges[:-1] + bin_edges[1:])/2
     dr = bin_edges[1] - bin_edges[0]
 
-    pair_func = counts.astype(float)/(2*np.pi*pair_density*mid_points*dr)
+    pair_func = counts.astype(float)/(2*np.pi*pair_density*mid_points*dr*2) # add extra factor of two to avoid double-counting dists
 
     return mid_points, pair_func

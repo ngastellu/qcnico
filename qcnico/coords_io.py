@@ -342,4 +342,14 @@ def write_subsampled_trajfile(dump, start, end, step, outfile=None):
             n += step
             print("NLINES = ", ct)
             for i in range((step-1) * nlines_per_frame): fo.readline()
-        
+
+def concatenate_LAMMPS_xsf(xsf_prefix,frames,outname):
+    with open(outname, 'w') as fout:
+        for n in frames:
+            print(n)
+            with open(f'{xsf_prefix}{n}.xsf', 'r') as fo:
+                for line in fo:
+                    fout.write(line)
+                
+
+    
