@@ -4,7 +4,7 @@ from scipy.spatial.distance import pdist
 from scipy.spatial import KDTree
 from scipy.sparse import find
 
-def pair_correlation_hist(structure,L,rmin,rmax,Nbins,method='kdtree'):
+def pair_correlation_hist(structure,rmin,rmax,Nbins,L=None,method='kdtree',eps=0.5):
     """Computes the radial pair correlation for a 2D system using histogram method. PBC (square box) are assumed
     for simplicity, so large structures should be used to avoid artefacts.
     
@@ -13,7 +13,16 @@ def pair_correlation_hist(structure,L,rmin,rmax,Nbins,method='kdtree'):
     """
     
     N = len(structure)
-    V = L*L
+    if L is None: # box size unspecified: define it using the coordinate span
+        Lx = np.max(structure[:,0]) - np.min(structure[:,0])
+        Ly = np.max(structure[:,1]) - np.min(structure[:,1])
+    elif isinstance(L,np.ndarray) or isinstance(L,list) or isinstance(L,tuple): # box size specified as a vector; allows for rectangular box
+        Lx, Ly = L
+    else: # L is a scalar: square box
+        Lx = L
+        Ly = L
+    
+    V = Lx * Ly
     pair_density = N*(N-1)/(2*V)
 
     if method == 'pdist':
@@ -49,10 +58,6 @@ def pair_correlation_hist(structure,L,rmin,rmax,Nbins,method='kdtree'):
             structure[:,0] -= xmin
         if ymin < 0:
             structure[:,1] -= ymin
-        
-        Lx = np.max(structure[:,0]) - np.min(structure[:,0])
-        Ly = np.max(structure[:,1]) - np.min(structure[:,1])
-        eps = 0.5
         
         tree = KDTree(structure,boxsize=[Lx+eps,Ly+eps])
         Mdists = tree.sparse_distance_matrix(tree,max_distance=rmax)
