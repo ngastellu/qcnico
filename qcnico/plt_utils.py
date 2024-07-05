@@ -153,7 +153,7 @@ def MAC_ensemble_colours(clr_type='nature'):
     """
 
     clr_type = clr_type.strip()
-    valid_args = ['nature', 'p6c'] 
+    valid_args = ['nature', 'two_ensembles', 'p6c'] 
     if clr_type not in valid_args:
         print(f'[ERROR MAC_ensemble_colours] Invalid value arg `clr_type`: {clr_type}. Must be in {valid_args}. Reverting to default behaviour: clr_type = "nature".')
         clr_type = 'nature'
@@ -172,6 +172,10 @@ def MAC_ensemble_colours(clr_type='nature'):
         p6c = np.array([p6c_pCNN,p6c_tempdot6,p6c_tempdot5])
 
         clrs = get_cm(p6c, 'inferno',min_val=0.25,max_val=0.7)
+
+    elif clr_type == 'two_ensembles':
+        clrs = ['#1897ff', '#ff8018']
+    
     else: #clr_type == 'nature'
         clrs = ['forestgreen', 'darkviolet', 'darkorange']
 
