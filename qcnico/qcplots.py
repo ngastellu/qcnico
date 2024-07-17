@@ -74,7 +74,7 @@ def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_
     psi = MO_matrix[:,n]
     density = np.abs(psi)**2
 
-    rcParams['font.size'] = 16
+    # rcParams['font.size'] = 16
 
     if usetex:
         setup_tex()
@@ -143,7 +143,7 @@ def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_
         return fig, ax1
 
 
-def add_MO_centers(centers, ax, radii=None,  clr='r', marker='*',labels=None , dotsize=10,zorder=2,ls='--',lw=1.0):
+def add_MO_centers(centers, ax, radii=None,  clr='r', marker='*',labels=None , dotsize=10,zorder=2,ls='--',lw=3.0):
     """This function adds localisation centers (either COM or hopping sites) to a pre-existing MO figure.
     
     Parameters
