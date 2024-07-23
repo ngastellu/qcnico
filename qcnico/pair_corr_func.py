@@ -54,12 +54,8 @@ def pair_correlation_hist(structure,rmin,rmax,Nbins,L=None,method='kdtree',eps=0
         # Make sure structure fits into the periodic k-D tree
         xmin = np.min(structure[:,0])
         ymin = np.min(structure[:,1])
-        if xmin < 0:
-            structure[:,0] -= xmin
-            Lx -= xmin
-        if ymin < 0:
-            structure[:,1] -= ymin
-            Ly -= ymin
+        structure[:,0] -= xmin
+        structure[:,1] -= ymin
         
         tree = KDTree(structure,boxsize=[Lx+eps,Ly+eps])
         Mdists = tree.sparse_distance_matrix(tree,max_distance=rmax)
