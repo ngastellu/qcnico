@@ -19,4 +19,12 @@ def parse_LAMMPS_log(logfile,nsteps,fields,nb_opening_lines=29):
     
     return out_data
 
+
+def subsample_structure(pos,xlim=(-np.inf,np.inf),ylim=(-np.inf, np.inf)):
+    xmask = (pos[:,0] > xlim[0]) * (pos[:,0] < xlim[1])
+    ymask = (pos[:,1] > ylim[0]) * (pos[:,1] < ylim[1])
+
+    mask = xmask * ymask
+
+    return pos[mask]
     
