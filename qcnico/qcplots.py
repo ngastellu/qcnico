@@ -65,8 +65,8 @@ def plot_atoms_w_bonds(pos,M,dotsize=45.0,colour='k', bond_colour='k', bond_lw=0
 
 
 def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_rgyr=False, plot_amplitude=False, 
-            scale_up=1.0, com_clr = 'r', title=None, usetex=True, show=True, plt_objs=None, zorder=1,scale_up_threshold=0.001,
-            show_cbar=True,loc_centers=None, loc_radii=None, c_clrs='r',c_markers='h',c_labels=None,c_rel_size=5):
+            scale_up=1.0, com_clr = 'r', title=None, show_title =True, usetex=True, show=True, plt_objs=None, zorder=1,scale_up_threshold=0.001,
+            show_cbar=True,loc_centers=None, loc_radii=None, c_clrs='r',c_markers='h',c_labels=None,c_rel_size=5,c_lw=3.0):
 
     if pos.shape[1] == 3:
         pos = pos[:,:2]
@@ -106,13 +106,14 @@ def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_
     if show_cbar:
         cbar = fig.colorbar(ye,ax=ax1,orientation='vertical')
 
-    if title is None:
-        if plot_amplitude:
-            plt.suptitle('$\langle\\varphi_n|\psi_{%d}\\rangle$'%n)
+    if show_title:
+        if title is None: 
+            if plot_amplitude:
+                plt.suptitle('$\langle\\varphi_n|\psi_{%d}\\rangle$'%n)
+            else:
+                plt.suptitle('$|\langle\\varphi_n|\psi_{%d}\\rangle|^2$'%n)
         else:
-            plt.suptitle('$|\langle\\varphi_n|\psi_{%d}\\rangle|^2$'%n)
-    else:
-        plt.suptitle(title)
+            plt.suptitle(title)
 
     ax1.set_xlabel('$x$ [\AA]')
     ax1.set_ylabel('$y$ [\AA]')
@@ -121,24 +122,24 @@ def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_
     if show_COM or show_rgyr:
         com = density @ pos
         if not show_rgyr:
-            ax1 = add_MO_centers(com[None,:],ax1,marker='*',clr=com_clr,dotsize=dotsize*c_rel_size,zorder=zorder+1,labels=c_labels)
+            ax1 = add_MO_centers(com[None,:],ax1,marker='*',clr=com_clr,dotsize=dotsize*c_rel_size,zorder=zorder+1,labels=c_labels,lw=c_lw)
     if show_rgyr:
         rgyr = MO_rgyr(pos,MO_matrix,n,center_of_mass=com)
         print('RGYR = ', rgyr)
-        ax1 = add_MO_centers(com[None,:],ax1,[rgyr],marker='*',clr=com_clr,dotsize=dotsize*c_rel_size,zorder=zorder+1,labels=c_labels)
+        ax1 = add_MO_centers(com[None,:],ax1,[rgyr],marker='*',clr=com_clr,dotsize=dotsize*c_rel_size,zorder=zorder+1,labels=c_labels,lw=c_lw)
         # ax1 = add_MO_centers(com[None,:],ax1,[rgyr],clr=com_clr,zorder=zorder+1)
 
     if loc_centers is not None:
-        ax1 = add_MO_centers(loc_centers,ax1,radii=loc_radii,clr=c_clrs,marker=c_markers,labels=c_labels,dotsize=dotsize*c_rel_size,zorder=zorder+1)    
+        ax1 = add_MO_centers(loc_centers,ax1,radii=loc_radii,clr=c_clrs,marker=c_markers,labels=c_labels,dotsize=dotsize*c_rel_size,zorder=zorder+1,lw=c_lw)    
 
     #line below turns off x and y ticks 
     #ax1.tick_params(axis='both',which='both',bottom=False,top=False,right=False, left=False)
-    if show and c_labels is not None:
-        plt.legend()
-        plt.show()
-    elif show:
-        plt.show()
 
+    if c_labels is not None:
+        ax1.legend()
+
+    if show:
+        plt.show()
     else:
         return fig, ax1
 
@@ -174,8 +175,8 @@ def add_MO_centers(centers, ax, radii=None,  clr='r', marker='*',labels=None , d
         if isinstance(labels,list):
             ax.scatter(*centers[-1].T, s=dotsize,marker=marker,c=clr,zorder=zorder,label=labels)
         else: #if only a single label is specicfied, apply it only to the last center (avoids having many times the same legend)
-            ax.scatter(*centers[:-1].T, s=dotsize,marker=marker,c=clr,zorder=zorder,edgecolors='k',lw=0.5)
-            ax.scatter(*centers[-1].T, s=dotsize,marker=marker,c=clr,zorder=zorder,label=labels,edgecolors='k',lw=0.5)
+            ax.scatter(*centers[:-1].T, s=dotsize,marker=marker,c=clr,zorder=zorder,edgecolors='k',lw=1.0)
+            ax.scatter(*centers[-1].T, s=dotsize,marker=marker,c=clr,zorder=zorder,label=labels,edgecolors='k',lw=1.0)
     else:
         ax.scatter(*centers.T, s=dotsize,marker=marker,c=clr,zorder=zorder+1,edgecolors='k',lw=0.5)
     
