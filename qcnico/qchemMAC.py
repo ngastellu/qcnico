@@ -122,7 +122,7 @@ def MCOs_inv(Hao, gamL,gamR):
 
 def inverse_participation_ratios(MO_matrix):
 
-    return np.sum(np.abs(MO_matrix)**4, axis = 0)
+    return np.sum(np.abs(MO_matrix)**4, axis = 0) / np.sum(np.abs(MO_matrix)**2, axis = 0) 
 
 
 def AO_gammas(pos, gamma, edge_tol=3.0, return_separate=True, graphene=False, brute_force=False, eps_edge=0.01):
