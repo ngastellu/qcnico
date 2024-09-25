@@ -40,7 +40,7 @@ def plot_atoms(pos,dotsize=45.0,colour='k',show_cbar=False, usetex=True,show=Tru
     else: # should not be True if `show=True`
         return fig, ax
 
-def plot_atoms_w_bonds(pos,M,dotsize=45.0,colour='k', bond_colour='k', bond_lw=0.5,usetex=True,show=True, plt_objs=None):
+def plot_atoms_w_bonds(pos,A,dotsize=45.0,colour='k', bond_colour='k', bond_lw=0.5,usetex=True,show=True, plt_objs=None):
 
     if usetex:
         setup_tex()
@@ -50,7 +50,7 @@ def plot_atoms_w_bonds(pos,M,dotsize=45.0,colour='k', bond_colour='k', bond_lw=0
     else:
         fig, ax = plot_atoms(pos,dotsize=dotsize,colour=colour,show=False,plt_objs=plt_objs)
 
-    pairs = np.vstack(M.nonzero()).T
+    pairs = np.vstack(A.nonzero()).T
     
     for i,j in pairs:
         ax.plot([pos[i,0], pos[j,0]], [pos[i,1], pos[j,1]], c=bond_colour, ls='-', lw=bond_lw)
@@ -71,8 +71,14 @@ def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_
     if pos.shape[1] == 3:
         pos = pos[:,:2]
 
-    psi = MO_matrix[:,n]
-    density = np.abs(psi)**2
+    if isinstance(n, int):
+        psi = MO_matrix[:,n]
+        density = np.abs(psi)**2
+    else:
+        n = np.array(n)
+        psi = MO_matrix[:,n].sum(axis=1)
+        density = (np.abs(MO_matrix)**2).sum(axis=1)
+
 
     # rcParams['font.size'] = 16
 
@@ -108,10 +114,11 @@ def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_
 
     if show_title:
         if title is None: 
-            if plot_amplitude:
-                plt.suptitle('$\langle\\varphi_n|\psi_{%d}\\rangle$'%n)
-            else:
-                plt.suptitle('$|\langle\\varphi_n|\psi_{%d}\\rangle|^2$'%n)
+            if isinstance(n,int):
+                if plot_amplitude:
+                    plt.suptitle('$\langle\\varphi_n|\psi_{%d}\\rangle$'%n)
+                else:
+                    plt.suptitle('$|\langle\\varphi_n|\psi_{%d}\\rangle|^2$'%n)
         else:
             plt.suptitle(title)
 
