@@ -100,6 +100,12 @@ def get_successful_inds(datadir, filename_template, extension, pre_label='-'):
     return isucc #hehe
 
 def save_npy(data, npyname, npydir=None):
+    """The purpose of this function is to save the data into an NPY file with name 'npyname' in directory 'npydir' while handling
+    the creation of 'npydir' if necessary."""
+
+    if npyname[-4:] != '.npy':
+        npyname += '.npy'
+
     if npydir is None:
         npydir = '.'
     else:
