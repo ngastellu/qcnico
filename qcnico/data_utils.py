@@ -2,7 +2,7 @@
 
 import numpy as np
 from glob import glob
-from os import path
+import os
 
 def avg_ydata(datadir_prefix,ydata_npy,xdata_npy=None):
     """Computes the average of the data produced by a SLURM job array (or any data which is contained
@@ -45,7 +45,7 @@ def avg_ydata(datadir_prefix,ydata_npy,xdata_npy=None):
     while nsuccess == 0:
         d = datadirs[k]
         ynpy = d+'/'+ydata_npy
-        if path.exists(ynpy):
+        if os.path.exists(ynpy):
             y_avg = np.load(ynpy)
             nsuccess = 1
             k+=1
@@ -55,7 +55,7 @@ def avg_ydata(datadir_prefix,ydata_npy,xdata_npy=None):
     
     for d in datadirs[k:]:
         ynpy = d+'/'+ydata_npy
-        if path.exists(ynpy):
+        if os.path.exists(ynpy):
             y_avg += np.load(ynpy)
             nsuccess += 1
         else:
@@ -94,7 +94,15 @@ def get_successful_inds(datadir, filename_template, extension, pre_label='-'):
     where `n` is an integer, `extension` is a file type (e.g. 'npy') and `pre_label` is usually
     '-' (by default). Returns the list of integers. 
     Useful to verify which runs in a job array ran successfully produced output files."""
-    datfiles = glob(path.join(datadir, filename_template + pre_label + '*.' + extension))
+    datfiles = glob(os.path.join(datadir, filename_template + pre_label + '*.' + extension))
     
     isucc = sorted([int(f.split(pre_label)[-1].split('.'+extension)[0]) for f in datfiles])
     return isucc #hehe
+
+def save_npy(data, npyname, npydir=None):
+    if npydir is None:
+        npydir = '.'
+    else:
+        if not os.path.isdir(npydir):
+            os.makedirs(npydir)
+    np.save(os.path.join(npydir,npyname), data)
