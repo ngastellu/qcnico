@@ -70,11 +70,11 @@ def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_
 
     if pos.shape[1] == 3:
         pos = pos[:,:2]
-
-    if isinstance(n, int):
+    if isinstance(n, int) or isinstance(n, np.int64):
         psi = MO_matrix[:,n]
         density = np.abs(psi)**2
     else:
+        print(type(n))
         n = np.array(n)
         psi = MO_matrix[:,n].sum(axis=1)
         density = (np.abs(MO_matrix)**2).sum(axis=1)
@@ -177,6 +177,12 @@ def add_MO_centers(centers, ax, radii=None,  clr='r', marker='*',labels=None , d
     -------
     ax: Same as input arg, but of the modified figure
     """
+
+    if not isinstance(centers,np.ndarray):
+        centers = np.array(centers)
+    
+    if centers.ndim == 1:
+        centers = centers.reshape(1,-1)
 
     if labels is not None:
         if isinstance(labels,list):
