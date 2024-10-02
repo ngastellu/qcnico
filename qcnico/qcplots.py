@@ -77,7 +77,7 @@ def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_
         print(type(n))
         n = np.array(n)
         psi = MO_matrix[:,n].sum(axis=1)
-        density = (np.abs(MO_matrix)**2).sum(axis=1)
+        density = (np.abs(MO_matrix[:,n])**2).sum(axis=1)
 
 
     # rcParams['font.size'] = 16
