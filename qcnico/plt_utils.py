@@ -96,7 +96,7 @@ def histogram(values,bins=100,normalised=False,density=False,xlabel=None,ylabel=
     
 
 
-def multiple_histograms(vals_arr, labels, nbins=100, colors=None, alpha=0.6, normalised=False,density=False,xlabel=None,ylabel=None,log_counts=False,
+def multiple_histograms(vals_arr, labels, bins=100, colors=None, alpha=0.6, normalised=False,density=False,xlabel=None,ylabel=None,log_counts=False,
               plt_objs=None,show=True,plt_kwargs=None,print_dx=True,return_data=False,usetex=True,title=None):
     
     ndatasets = len(vals_arr)
@@ -127,17 +127,17 @@ def multiple_histograms(vals_arr, labels, nbins=100, colors=None, alpha=0.6, nor
        
         if (k == ndatasets - 1):
             if show:
-                histogram(vals, nbins=nbins, normalised=normalised, density=density, xlabel=xlabel, ylabel=ylabel,
+                histogram(vals, bins=bins, normalised=normalised, density=density, xlabel=xlabel, ylabel=ylabel,
                           log_counts=log_counts, plt_objs=plt_objs, plt_kwargs=plt_kwargs2, print_dx=print_dx, show=False)
                 plt.legend()
                 plt.show()
             else: 
-                histogram(vals, nbins=nbins, normalised=normalised, density=density, xlabel=xlabel, ylabel=ylabel,
+                histogram(vals, bins=bins, normalised=normalised, density=density, xlabel=xlabel, ylabel=ylabel,
                           log_counts=log_counts, plt_objs=plt_objs, plt_kwargs=plt_kwargs2, print_dx=print_dx, show=False)
                 return fig, ax
         
         else:
-                histogram(vals, nbins=nbins, normalised=normalised, density=density, xlabel=xlabel, ylabel=ylabel,
+                histogram(vals, bins=bins, normalised=normalised, density=density, xlabel=xlabel, ylabel=ylabel,
                           log_counts=log_counts, plt_objs=plt_objs, plt_kwargs=plt_kwargs2, print_dx=print_dx, show=False)
 
 
