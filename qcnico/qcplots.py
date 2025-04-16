@@ -176,15 +176,8 @@ def add_bonds_MO(pos, psi, ax, bond_size=0.5,zorder_bonds=0,cmap='plasma', rCC =
         isorted = np.argsort(psis)
         i = ij[isorted[0]]
         j = ij[isorted[1]]
-
-        print(f'\nWorking on pair {ij}:')
-        print(f'psi[{ij[0]}] = {psi[ij[0]]} ;psi[{ij[1]}] = {psi[ij[1]]} <=====> i = {i} ; j = {j}')
-        print(f'pos[{i}] = {pos[i]} ; pos[{j}] = {pos[j]}')
-
         edge_pts = pos[i,:] + t[:,None] * (pos[j,:] - pos[i,:])
         edge_psis =  psi[i] + t * (psi[j] - psi[i])
-        print(f'edge_psis = [{edge_psis[0]}, ..., {edge_psis[-1]}')
-
         ax.scatter(edge_pts[:,0], edge_pts[:,1], c=edge_psis, cmap=cmap, norm=norm,zorder=zorder_bonds,s=bond_size,edgecolor='none')
     # return ax
         
