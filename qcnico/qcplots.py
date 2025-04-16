@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib import rcParams, colors
 from .plt_utils import setup_tex
 from .qchemMAC import MO_rgyr, MCO_com, MCO_rgyr, MO_rgyr_hyperlocal
+from .graph_tools import adjacency_matrix_sparse
 
 
 def plot_atoms(pos,dotsize=45.0,colour='k',show_cbar=False, usetex=True,show=True, plt_objs=None,zorder=3):
@@ -68,7 +69,7 @@ def plot_atoms_w_bonds(pos,A,dotsize=45.0,colour='k', bond_colour='k', bond_lw=0
 
 
 
-def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_rgyr=False, plot_amplitude=False, 
+def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_rgyr=False, show_bonds=False , plot_amplitude=False, 
             scale_up=1.0, com_clr = 'r', title=None, show_title =True, usetex=True, show=True, plt_objs=None, zorder=1,scale_up_threshold=0.001,
             show_cbar=True,loc_centers=None, loc_radii=None, c_clrs='r',c_markers='h',c_labels=None,c_rel_size=5,c_lw=3.0):
 
@@ -126,6 +127,10 @@ def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_
         else:
             plt.suptitle(title)
 
+    if show_bonds:
+        add_bonds_MO(pos, psi, ax1, zorder_bonds = zorder-1,cmap=cmap)
+
+
     ax1.set_xlabel('$x$ [\AA]')
     ax1.set_ylabel('$y$ [\AA]')
     ax1.set_aspect('equal')
@@ -156,9 +161,15 @@ def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_
         return fig, ax1
 
 
-def add_bonds_MO(pos, A, psi, ax, bond_size=0.5,zorder_bonds=0,cmap='plasma'): 
+def add_bonds_MO(pos, psi, ax, bond_size=0.5,zorder_bonds=0,cmap='plasma', rCC = 1.8, plot_amplitude=False): 
+    A = adjacency_matrix_sparse(pos, rCC)
     pairs = np.vstack(A.nonzero()).T
     t = np.linspace(0,1,100)
+
+    if not plot_amplitude:
+        psi = psi**2
+
+    norm = colors.Normalize(vmin=np.min(psi),vmax=np.max(psi))
     for ij in pairs:
         # Define (i,j) ordering as psi[i] <= psi[j]
         psis = psi[ij]
@@ -166,9 +177,16 @@ def add_bonds_MO(pos, A, psi, ax, bond_size=0.5,zorder_bonds=0,cmap='plasma'):
         i = ij[isorted[0]]
         j = ij[isorted[1]]
 
-        edge_pts = pos[i,:] + t * (pos[j,:] - pos[i,:])
+        print(f'\nWorking on pair {ij}:')
+        print(f'psi[{ij[0]}] = {psi[ij[0]]} ;psi[{ij[1]}] = {psi[ij[1]]} <=====> i = {i} ; j = {j}')
+        print(f'pos[{i}] = {pos[i]} ; pos[{j}] = {pos[j]}')
+
+        edge_pts = pos[i,:] + t[:,None] * (pos[j,:] - pos[i,:])
         edge_psis =  psi[i] + t * (psi[j] - psi[i])
-        ax.scatter(edge_pts, c=edge_psis, cmap=cmap,zorder=zorder_bonds,s=bond_size,edgecolor='none')
+        print(f'edge_psis = [{edge_psis[0]}, ..., {edge_psis[-1]}')
+
+        ax.scatter(edge_pts[:,0], edge_pts[:,1], c=edge_psis, cmap=cmap, norm=norm,zorder=zorder_bonds,s=bond_size,edgecolor='none')
+    # return ax
         
 
 def add_MO_centers(centers, ax, radii=None,  clr='r', marker='*',labels=None , dotsize=10,zorder=2,ls='--',lw=3.0):
