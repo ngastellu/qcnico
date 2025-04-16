@@ -32,7 +32,8 @@ def setup_tex(fontsize=18,preamble_str=None):
 
 
 def histogram(values,bins=100,normalised=False,density=False,xlabel=None,ylabel=None,log_counts=False,
-              plt_objs=None,show=True,usetex=True,plt_kwargs=None,print_dx=True,return_data=False,return_data_w_dx=False):
+              plt_objs=None,show=True,usetex=True,plt_kwargs=None,print_dx=True,return_data=False,return_data_w_dx=False,
+              x_axis_fontsize=20, y_axis_fontsize=20):
     hist, bins = np.histogram(values,bins,density=density)
     dx = bins[1:] - bins[:-1]
     centers = (bins[1:] + bins[:-1])/2
@@ -62,14 +63,14 @@ def histogram(values,bins=100,normalised=False,density=False,xlabel=None,ylabel=
     else:
         ax.bar(centers, hist,align='center',width=dx,color='r')
     if xlabel:
-        ax.set_xlabel(xlabel)
+        ax.set_xlabel(xlabel,fontsize=x_axis_fontsize)
     
     if ylabel:
-        ax.set_ylabel(ylabel)
+        ax.set_ylabel(ylabel,fontsize=y_axis_fontsize)
     elif ylabel == None and normalised:
-        ax.set_ylabel('Normalised counts')
+        ax.set_ylabel('Normalised counts',fontsize=y_axis_fontsize)
     else:
-        ax.set_ylabel('Counts')
+        ax.set_ylabel('Counts',fontsize=y_axis_fontsize)
 
     if log_counts:
         ax.set_yscale('log')
@@ -128,17 +129,17 @@ def multiple_histograms(vals_arr, labels, bins=100, colors=None, alpha=0.6, norm
         if (k == ndatasets - 1):
             if show:
                 histogram(vals, bins=bins, normalised=normalised, density=density, xlabel=xlabel, ylabel=ylabel,
-                          log_counts=log_counts, plt_objs=plt_objs, plt_kwargs=plt_kwargs2, print_dx=print_dx, show=False)
+                          log_counts=log_counts, plt_objs=plt_objs, plt_kwargs=plt_kwargs2, print_dx=print_dx, show=False,usetex=usetex)
                 plt.legend()
                 plt.show()
             else: 
                 histogram(vals, bins=bins, normalised=normalised, density=density, xlabel=xlabel, ylabel=ylabel,
-                          log_counts=log_counts, plt_objs=plt_objs, plt_kwargs=plt_kwargs2, print_dx=print_dx, show=False)
+                          log_counts=log_counts, plt_objs=plt_objs, plt_kwargs=plt_kwargs2, print_dx=print_dx, show=False,usetex=usetex)
                 return fig, ax
         
         else:
                 histogram(vals, bins=bins, normalised=normalised, density=density, xlabel=xlabel, ylabel=ylabel,
-                          log_counts=log_counts, plt_objs=plt_objs, plt_kwargs=plt_kwargs2, print_dx=print_dx, show=False)
+                          log_counts=log_counts, plt_objs=plt_objs, plt_kwargs=plt_kwargs2, print_dx=print_dx, show=False,usetex=usetex)
 
 
 def MAC_ensemble_colours(clr_type='nature'):
