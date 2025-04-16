@@ -28,7 +28,7 @@ def get_Natoms(infile):
 def read_MO_file(infile, Natoms=None, MO_inds=None):
     """Reads MO coefs output file from QCFFPI and returns a list of atomic positions and a AO -> MO
      transformation matrix with elements M_ij = <AO_i|MO_j>. If `MO_inds` is specified, then only
-     the columns indexed by `MO_inds` (corresponding to specific MOs) are returned, rather thanthe
+     the columns indexed by `MO_inds` (corresponding to specific MOs) are returned, rather than the
      full MO matrix."""
     
     if Natoms == None:
@@ -177,3 +177,10 @@ def write_qcff_initconfig(coords, rcut):
             while counter < 4:
                 counter += 1
                 fo.write('\t{:{width}d}'.format(0,width=index_field_size))
+
+
+def load_qcffpi_data(orbfile, MOfile,Natoms=None,convert2eV=True):
+    pos, M = read_MO_file(MOfile,Natoms=Natoms)
+    Natoms = M.shape[0] # makes sure `read_energies` reads the correct number of lines from `orbfile`
+    energies = read_energies(orbfile,Natoms=Natoms, convert2eV=convert2eV)
+    return pos, energies, M
