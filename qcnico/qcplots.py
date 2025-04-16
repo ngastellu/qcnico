@@ -21,7 +21,11 @@ def plot_atoms(pos,dotsize=45.0,colour='k',show_cbar=False, usetex=True,show=Tru
     else:
         fig, ax = plt_objs
 
-    ye = ax.scatter(*pos.T, c=colour, s=dotsize, zorder=zorder)
+    # if all atoms have the same size/colour, `plot` is faster than `scatter`
+    if hasattr(dotsize, '__iter__') or hasattr(colour,'__iter__'): # checks if `dotsize` or `colour` are iterable
+        ye = ax.scatter(*pos.T, c=colour, s=dotsize, zorder=zorder,alpha=1.0)
+    else:
+        ye = ax.plot(*pos.T, c=colour, ms=dotsize, zorder=zorder,alpha=1.0)
 
     #uncomment below to remove whitespace around plot
     #fig.subplots_adjust(left=0,right=1,bottom=0,top=1)
@@ -40,20 +44,20 @@ def plot_atoms(pos,dotsize=45.0,colour='k',show_cbar=False, usetex=True,show=Tru
     else: # should not be True if `show=True`
         return fig, ax
 
-def plot_atoms_w_bonds(pos,A,dotsize=45.0,colour='k', bond_colour='k', bond_lw=0.5,usetex=True,show=True, plt_objs=None):
+def plot_atoms_w_bonds(pos,A,dotsize=45.0,colour='k', bond_colour='k', bond_lw=0.5,usetex=True,show=True, plt_objs=None,zorder_atoms=3,zorder_bonds=3):
 
     if usetex:
         setup_tex()
 
     if plt_objs is None:
-        fig, ax = plot_atoms(pos,dotsize=dotsize,colour=colour,show=False)
+        fig, ax = plot_atoms(pos,dotsize=dotsize,colour=colour,show=False,zorder=zorder_atoms)
     else:
-        fig, ax = plot_atoms(pos,dotsize=dotsize,colour=colour,show=False,plt_objs=plt_objs)
+        fig, ax = plot_atoms(pos,dotsize=dotsize,colour=colour,show=False,plt_objs=plt_objs,zorder=zorder_atoms)
 
     pairs = np.vstack(A.nonzero()).T
     
     for i,j in pairs:
-        ax.plot([pos[i,0], pos[j,0]], [pos[i,1], pos[j,1]], c=bond_colour, ls='-', lw=bond_lw)
+        ax.plot([pos[i,0], pos[j,0]], [pos[i,1], pos[j,1]], c=bond_colour, ls='-', lw=bond_lw,zorder=zorder_bonds)
     
     if show: 
         plt.show()
@@ -110,7 +114,7 @@ def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_
         ye = ax1.scatter(pos.T[0,:],pos.T[1,:],c=density,s=sizes,cmap=cmap,zorder=zorder) #CenteredNorm() sets center of cbar to 0
 
     if show_cbar:
-        cbar = fig.colorbar(ye,ax=ax1,orientation='vertical')
+        cbar = fig.colorbar(ye,ax=ax1,orientation='vertical',label='Density $|\langle|\\varphi_i|\psi\\rangle|^2$')
 
     if show_title:
         if title is None: 
@@ -128,12 +132,13 @@ def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_
     
     if show_COM or show_rgyr:
         com = density @ pos
+        label = '$\langle\psi|\\bm{r}|\psi\\rangle$'
         if not show_rgyr:
-            ax1 = add_MO_centers(com[None,:],ax1,marker='*',clr=com_clr,dotsize=dotsize*c_rel_size,zorder=zorder+1,labels=c_labels,lw=c_lw)
+            ax1 = add_MO_centers(com[None,:],ax1,marker='*',clr=com_clr,dotsize=dotsize*c_rel_size,zorder=zorder+1,labels=label,lw=c_lw)
     if show_rgyr:
         rgyr = MO_rgyr(pos,MO_matrix,n,center_of_mass=com)
         print('RGYR = ', rgyr)
-        ax1 = add_MO_centers(com[None,:],ax1,[rgyr],marker='*',clr=com_clr,dotsize=dotsize*c_rel_size,zorder=zorder+1,labels=c_labels,lw=c_lw)
+        ax1 = add_MO_centers(com[None,:],ax1,[rgyr],marker='*',clr=com_clr,dotsize=dotsize*c_rel_size,zorder=zorder+1,labels=label,lw=c_lw)
         # ax1 = add_MO_centers(com[None,:],ax1,[rgyr],clr=com_clr,zorder=zorder+1)
 
     if loc_centers is not None:
@@ -142,7 +147,7 @@ def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_
     #line below turns off x and y ticks 
     #ax1.tick_params(axis='both',which='both',bottom=False,top=False,right=False, left=False)
 
-    if c_labels is not None:
+    if c_labels is not None or show_COM:
         ax1.legend()
 
     if show:
@@ -150,6 +155,21 @@ def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_
     else:
         return fig, ax1
 
+
+def add_bonds_MO(pos, A, psi, ax, bond_size=0.5,zorder_bonds=0,cmap='plasma'): 
+    pairs = np.vstack(A.nonzero()).T
+    t = np.linspace(0,1,100)
+    for ij in pairs:
+        # Define (i,j) ordering as psi[i] <= psi[j]
+        psis = psi[ij]
+        isorted = np.argsort(psis)
+        i = ij[isorted[0]]
+        j = ij[isorted[1]]
+
+        edge_pts = pos[i,:] + t * (pos[j,:] - pos[i,:])
+        edge_psis =  psi[i] + t * (psi[j] - psi[i])
+        ax.scatter(edge_pts, c=edge_psis, cmap=cmap,zorder=zorder_bonds,s=bond_size,edgecolor='none')
+        
 
 def add_MO_centers(centers, ax, radii=None,  clr='r', marker='*',labels=None , dotsize=10,zorder=2,ls='--',lw=3.0):
     """This function adds localisation centers (either COM or hopping sites) to a pre-existing MO figure.
