@@ -112,3 +112,12 @@ def save_npy(data, npyname, npydir=None):
         if not os.path.isdir(npydir):
             os.makedirs(npydir)
     np.save(os.path.join(npydir,npyname), data)
+
+
+def resize_arr(arr):
+    """Resize array if you run out of space when iteratively populating it.
+    Assume 2D array that is being populated row-wise (i.e. calling this when running out of rows)."""
+    N, d = arr.shape[0]
+    new_arr = np.empty((2*N, d),dtype=arr.dtype)
+    new_arr[:N] = arr[:]
+    return new_arr
