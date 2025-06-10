@@ -69,9 +69,9 @@ def plot_atoms_w_bonds(pos,A,dotsize=45.0,colour='k', bond_colour='k', bond_lw=0
 
 
 
-def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_rgyr=False, show_bonds=False , plot_amplitude=False, 
+def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', cnorm=None,show_COM=False, show_rgyr=False, show_bonds=False , plot_amplitude=False, 
             scale_up=1.0, com_clr = 'r', title=None, show_title =True, usetex=True, show=True, plt_objs=None, zorder=1,scale_up_threshold=0.001,
-            show_cbar=True,loc_centers=None, loc_radii=None, c_clrs='r',c_markers='h',c_labels=None,c_rel_size=5,c_lw=3.0):
+            show_cbar=True,loc_centers=None, loc_radii=None, c_clrs='r',c_markers='h',c_labels=None,c_rel_size=5,c_lw=3.0,bond_size=0.5):
 
     if pos.shape[1] == 3:
         pos = pos[:,:2]
@@ -112,10 +112,10 @@ def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_
     if plot_amplitude:
         ye = ax1.scatter(pos.T[0,:],pos.T[1,:],c=psi,s=sizes,cmap=cmap,norm=colors.CenteredNorm(),zorder=zorder) #CenteredNorm() sets center of cbar to 0
     else:
-        ye = ax1.scatter(pos.T[0,:],pos.T[1,:],c=density,s=sizes,cmap=cmap,zorder=zorder) #CenteredNorm() sets center of cbar to 0
+        ye = ax1.scatter(pos.T[0,:],pos.T[1,:],c=density,s=sizes,cmap=cmap,zorder=zorder,norm=cnorm) #CenteredNorm() sets center of cbar to 0
 
     if show_cbar:
-        cbar = fig.colorbar(ye,ax=ax1,orientation='vertical',label='Density $|\langle|\\varphi_i|\psi\\rangle|^2$')
+        cbar = fig.colorbar(ye,ax=ax1,orientation='vertical',label='Density $|\langle\\varphi_i|\psi\\rangle|^2$',ticks=[])
 
     if show_title:
         if title is None: 
@@ -128,7 +128,7 @@ def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_
             plt.suptitle(title)
 
     if show_bonds:
-        add_bonds_MO(pos, psi, ax1, zorder_bonds = zorder-1,cmap=cmap)
+        add_bonds_MO(pos, psi, ax1, zorder_bonds = zorder-1,cmap=cmap, bond_size=bond_size)
 
 
     ax1.set_xlabel('$x$ [\AA]')
@@ -161,7 +161,7 @@ def plot_MO(pos,MO_matrix, n, dotsize=45.0, cmap='plasma', show_COM=False, show_
         return fig, ax1
 
 
-def add_bonds_MO(pos, psi, ax, bond_size=0.5,zorder_bonds=0,cmap='plasma', rCC = 1.8, plot_amplitude=False): 
+def add_bonds_MO(pos, psi, ax, bond_size=0.5,zorder_bonds=0,cmap='plasma', rCC = 1.8, plot_amplitude=False, cnorm=None): 
     A = adjacency_matrix_sparse(pos, rCC)
     pairs = np.vstack(A.nonzero()).T
     t = np.linspace(0,1,100)
@@ -169,7 +169,9 @@ def add_bonds_MO(pos, psi, ax, bond_size=0.5,zorder_bonds=0,cmap='plasma', rCC =
     if not plot_amplitude:
         psi = psi**2
 
-    norm = colors.Normalize(vmin=np.min(psi),vmax=np.max(psi))
+    if cnorm is None:
+        cnorm = colors.Normalize(vmin=np.min(psi),vmax=np.max(psi))
+
     for ij in pairs:
         # Define (i,j) ordering as psi[i] <= psi[j]
         psis = psi[ij]
@@ -178,7 +180,7 @@ def add_bonds_MO(pos, psi, ax, bond_size=0.5,zorder_bonds=0,cmap='plasma', rCC =
         j = ij[isorted[1]]
         edge_pts = pos[i,:] + t[:,None] * (pos[j,:] - pos[i,:])
         edge_psis =  psi[i] + t * (psi[j] - psi[i])
-        ax.scatter(edge_pts[:,0], edge_pts[:,1], c=edge_psis, cmap=cmap, norm=norm,zorder=zorder_bonds,s=bond_size,edgecolor='none')
+        ax.scatter(edge_pts[:,0], edge_pts[:,1], c=edge_psis, cmap=cmap, norm=cnorm,zorder=zorder_bonds,s=bond_size,edgecolor='none')
     # return ax
         
 
