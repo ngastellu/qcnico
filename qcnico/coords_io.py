@@ -177,7 +177,7 @@ def write_LAMMPS_data(atoms, supercell, filename="carbon.data",minimum_coords=No
     f.write("%f 20.0 zlo zhi\n\n" % (minimum_coords[2]))
 
     f.write("Masses\n\n")
-    f.write("1 12.0\n\n")
+    f.write("1 12.0\n\n") 
 
     f.write("Atoms\n\n")
     for i in range(len(atoms)):
