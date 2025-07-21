@@ -308,40 +308,75 @@ def get_lammps_frame_bash(dump,nframe,Natoms,step=1,frame0=0):
     return pos
 
 
-def write_subsampled_trajfile(dump, start, end, step, outfile=None):
-    """Keep only a subset of frames from a trajectory file and write them to a new trajectory file."""
+def _get_timestep_chunk_size(fo, nlines_per_frame):
+    """Returns the size (in bytes) of a chunk corresponding to a single timestep in a LAMMPS dump file."""
+    fo.seek(0)
+    chunk = fo.readline()
+    for _ in range(nlines_per_frame-1): # already read first line
+        chunk += fo.readline()
+    return chunk.__sizeof__()
+
+def _process_timestep_chunk(fo):
+    frame = ''
+    for _ in range(2):
+        line = fo.readline()    
+        frame += line
+    nstep = int(line.strip())
+
+    for _ in range(2):
+        line = fo.readline()
+        frame += line
+    natoms = int(line.strip())
+
+    for _ in range(5):
+        frame += fo.readline()
+    
+    for _ in range(natoms):
+        frame += fo.readline()
+    
+    return nstep, natoms, frame
+
+
+
+def write_subsampled_trajfile(dump, start, end, save_step, dump_step=100, outfile=None):
+    """
+    Keep only a subset of frames from a trajectory file and write them to a new trajectory file. Assumes the dump file starts at 0th timestep.
+    
+    * `save_step` corresponds to the sample frequency of this function: i.e. every `save_step`-th frame contained IN THE DUMP FILE
+       will be saved by this function.
+    
+    * `dump_step` corresponds to LAMMPS' write frequency to the dump file during the MD run: i.e., the dump file only contains every `save_step`-th
+       frame of the actual, full MD run.
+    
+    In practice, this means that every (`save_step`*`dump_step`)-th frame OF THE MD RUN will be downsampled by this script. 
+    Due to the difference between `save_step` and `dump_step`, the `end`-th frame of the simulation may not be subsampled by this function
+    (this happens in the event `save_step` is not divisible by `dump_step`).
+    """
     nb_non_coord_lines = 9
     prefix = path.basename(dump).split('.')[0]
     dumpdir = path.dirname(dump)
     if outfile is None:
-        outfile = path.join(dumpdir, prefix + f'_frames_{start}-{end}-{step}.lammpstrj')
+        outfile = path.join(dumpdir, prefix + f'_frames_{start}-{end}-{dump_step*save_step}.lammpstrj')
+    fp = open(outfile, 'w')
+
     with open(dump) as fo:
         for n in range(3): fo.readline()
         Natoms = int(fo.readline().lstrip().rstrip())
         nlines_per_frame = Natoms + nb_non_coord_lines
+        chunk_size = _get_timestep_chunk_size(fo, nlines_per_frame)
+
         fo.seek(0)
+        fo.seek(chunk_size*(start//dump_step))
+
         n = start
-        fp = open(outfile,'w')
-        for i in range(n*nlines_per_frame): fo.readline() #get to 1st desired frame
         while n <= end:
-            print("n = ", n,flush=True)
-            first=True
-            second = False
-            ct = 0
-            for i in range(nlines_per_frame):
-                ct += 1
-                l = fo.readline()
-                fp.write(l)
-                if second:
-                    print('~~ L2: ', l)
-                    second = False
-                if first:  
-                    print('** L1: ', l)
-                    first = False
-                    second = True
-            n += step
-            print("NLINES = ", ct)
-            for i in range((step-1) * nlines_per_frame): fo.readline()
+            n, natoms, frame = _process_timestep_chunk(fo)
+            fp.write(frame)
+            assert Natoms == natoms, f'Number of atoms changed! {Natoms} --> {natoms}'
+            fo.seek(chunk_size * (save_step-1), whence=1) # bytes offset relative to the current cursor position
+        
+        fp.close()
+            
 
 def concatenate_LAMMPS_xsf(xsf_prefix,frames,outname):
     with open(outname, 'w') as fout:
