@@ -1,5 +1,6 @@
 
-from numba import njit, objmode
+from numba import njit, objmode, types
+from numba.typed import List
 
 @njit
 def jitted_components(M, seed_nodes=None):
@@ -75,8 +76,6 @@ def get_clusters(nuclei,Mhex,strict_6c):
     strict_clusters: `set` of `tuple`s of `int`s
         Set of all crystalline clusters (i.e. tuples of integers indeing the hexagons).
     """
-    if len(nuclei) == 0:
-        return []
     lax_clusters = jitted_components(Mhex,seed_nodes=set(nuclei)) #crystalline clusters defined using loose criterion
     lax_6c = lax_clusters[0]
     for c in lax_clusters[1:]:
