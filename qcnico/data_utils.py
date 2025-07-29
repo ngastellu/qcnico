@@ -121,3 +121,8 @@ def resize_arr(arr):
     new_arr = np.empty((2*N, d),dtype=arr.dtype)
     new_arr[:N] = arr[:]
     return new_arr
+
+
+def moving_average(arr, window_size):
+    filter = np.ones(window_size)
+    return np.convolve(arr, filter, mode='same')/window_size
