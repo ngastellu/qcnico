@@ -1,8 +1,12 @@
 #!/usr/bin/env python
 
 import numpy as np
-from scipy.fftpack import fft
-from scipy.integrate import simps
+from scipy.fft import rfft, rfftfreq
+
+try:
+    from scipy.integrate import simps
+except ImportError:
+    from scipy.integrate import simpson as simps
 
 
 # Set of functions used to evaluate the vibrational density of states (VDOS) of a molecule given its atomic
@@ -215,7 +219,7 @@ def vdos(vel, dt=1.0, m=None, area=1.0, window=True,
     mass = m
     # assume vel.shape = (nstep,natoms,3)
     axis = 0
-    assert vel.shape[-1] == 3
+    assert vel.shape[-1] == 3, f'velocities array should be of shape (nsteps, natoms, 3), instead it is of shape: {vel.shape}'
     if mass is not None:
         assert len(mass) == vel.shape[1], "len(mass) != vel.shape[1]"
         # define here b/c may be used twice below
@@ -238,14 +242,15 @@ def vdos(vel, dt=1.0, m=None, area=1.0, window=True,
             vel2 = pad_zeros(vel2, tonext=False, nadd=nadd, axis=axis)
     
     # Do the FFT
-    full_fft_vel = np.abs(fft(vel2, axis=axis))**2.0
-    full_faxis = np.fft.fftfreq(vel2.shape[axis], dt)
-    split_idx = len(full_faxis)//2
-    faxis = full_faxis[:split_idx]
+    full_fft_vel = np.abs(rfft(vel2, axis=axis))**2.0
+    full_faxis = rfftfreq(vel2.shape[axis], dt)
+    # split_idx = len(full_faxis)//2
+    faxis = full_faxis#[:split_idx]
+    fft_vel = full_fft_vel
 
     # First split the array, then multiply by `mass` and average. 
-    arr = full_fft_vel
-    fft_vel = slicetake(arr, slice(0, split_idx), axis=axis, copy=False)
+    # arr = full_fft_vel
+    # fft_vel = slicetake(arr, slice(0, split_idx), axis=axis, copy=False)
     if mass is not None:
         fft_vel *= mass_bc
 
