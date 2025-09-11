@@ -167,15 +167,19 @@ def read_xsf(filename,read_forces=True):
         return atoms, supercell
 
 def write_LAMMPS_data(atoms, supercell, filename="carbon.data",minimum_coords=None):
+    # Backwards compatibility checks
     if np.all(minimum_coords == None):
         minimum_coords = np.zeros(3,dtype=float)
+    if supercell.shape[0] == 2:
+        supercell = np.hstack(supercell, [20]) # default max z coord is 20 angstroms
+
     f=open(filename,"w")
     f.write("carbon\n\n")
     f.write("%d atoms\n\n" % (len(atoms)))
     f.write("1 atom types\n\n")
     f.write("%f %f xlo xhi\n" % (minimum_coords[0], supercell[0]))
     f.write("%f %f ylo yhi\n" % (minimum_coords[1], supercell[1]))
-    f.write("%f 20.0 zlo zhi\n\n" % (minimum_coords[2]))
+    f.write("%f %f zlo zhi\n\n" % (minimum_coords[2], supercell[2]))
 
     f.write("Masses\n\n")
     f.write("1 12.0\n\n") 
