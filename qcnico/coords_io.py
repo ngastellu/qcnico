@@ -171,7 +171,7 @@ def write_LAMMPS_data(atoms, supercell, filename="carbon.data",minimum_coords=No
     if np.all(minimum_coords == None):
         minimum_coords = np.zeros(3,dtype=float)
     if supercell.shape[0] == 2:
-        supercell = np.hstack(supercell, [20]) # default max z coord is 20 angstroms
+        supercell = np.hstack((supercell, [20])) # default max z coord is 20 angstroms
 
     f=open(filename,"w")
     f.write("carbon\n\n")
