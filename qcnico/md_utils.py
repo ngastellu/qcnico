@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import numpy as np
+import subprocess as sbp
 
 
 def parse_LAMMPS_log(logfile,nsteps,fields,nb_opening_lines=29):
@@ -27,4 +28,27 @@ def subsample_structure(pos,xlim=(-np.inf,np.inf),ylim=(-np.inf, np.inf)):
     mask = xmask * ymask
 
     return pos[mask]
+
+
+def count_natoms_lammpstrj(trajfile):
+    return int(sbp.run(f"grep -m 1 -A 1 'ATOMS' {trajfile} | tail -1 ", shell=True, capture_output=True).stdout.decode())
+
+
     
+def count_nsteps_lammpstrj(trajfile, Natoms=None, nb_context_lines=9):
+    if Natoms is None:
+        Natoms = count_natoms_lammpstrj(trajfile)
+
+    return int(sbp.run(f"tail -{Natoms + nb_context_lines} {trajfile} | grep -A 1 'TIMESTEP' | tail -1", shell=True, capture_output=True ).stdout.decode())
+
+def get_framerate_lammpstrj(trajfile, return_first_frame_index=False):
+    cmd_out = sbp.run(f"grep -m 2 -A 1 'TIMESTEP' {trajfile}", shell=True, capture_output=True).stdout.decode().split('\n')
+    print(cmd_out)
+    iframe0 = int(cmd_out[1])
+    iframe1 = int(cmd_out[4])
+    framerate = iframe1 - iframe0
+
+    if return_first_frame_index == True:
+        return framerate, iframe0
+    else:
+        return framerate
