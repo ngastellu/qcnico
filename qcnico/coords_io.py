@@ -193,7 +193,7 @@ def write_LAMMPS_data(atoms, supercell, filename="carbon.data",minimum_coords=No
         )  # atom_ID atom_type x y z
     f.close()
 
-def read_dump(dump):
+def read_dump(dump, read_cols=slice(1,4)):
 
     f=open(dump)
 
@@ -218,7 +218,7 @@ def read_dump(dump):
     for i in range(natoms):
         ll = f.readline().rstrip().split()
         symbols[i] = ll[0]
-        pos[i,:] = list(map(float, ll[1:4]))
+        pos[i,:] = list(map(float, ll[read_cols]))
     f.close()
 
     return pos, symbols, step
