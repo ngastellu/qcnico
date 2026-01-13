@@ -184,7 +184,7 @@ def get_triplets(M):
     Outputs
     -------
     T: `set`
-        set of all ordered triplets (i,j,k) such that node i is linked to nodes j and k, j < i < k, 
+        set of all ordered triplets (i,j,k) such that node j is linked to nodes i and k, j < i < k, 
         and (i,j,k) do not form a triangle.
     C: `set`
         set of all triplets (i,j,k) such that nodes i, j, and k form a triangle and j < i < k.

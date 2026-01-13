@@ -57,3 +57,13 @@ def get_framerate_lammpstrj(trajfile, return_first_frame_index=False):
         return framerate, iframe0
     else:
         return framerate
+
+def check_LAMMPS_success(logfile, return_last_line=False):
+    normal_exit_message = 'Total wall time:'
+    last_line = sbp.run(f"tail -1 {logfile}", shell=True, capture_output=True).stdout.decode()
+    success = (last_line[:len(normal_exit_message)] == normal_exit_message)
+    if return_last_line:
+        return success, last_line
+    else:
+        return success
+
