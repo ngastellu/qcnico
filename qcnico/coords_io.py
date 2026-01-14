@@ -204,7 +204,7 @@ def read_dump(dump, read_cols=slice(1,4)):
     f.readline()
 
     natoms = int( f.readline().strip().split()[0] )
-    pos = np.zeros((natoms,3),dtype=np.float64)
+    coords = np.zeros((natoms,read_cols.stop - read_cols.start),dtype=np.float64)
     symbols = [None] * natoms
     #print("number of atoms: %d" % (natoms))
     f.readline()
@@ -218,10 +218,10 @@ def read_dump(dump, read_cols=slice(1,4)):
     for i in range(natoms):
         ll = f.readline().rstrip().split()
         symbols[i] = ll[0]
-        pos[i,:] = list(map(float, ll[read_cols]))
+        coords[i,:] = list(map(float, ll[read_cols]))
     f.close()
 
-    return pos, symbols, step
+    return coords, symbols, step
     
 def LAMMPS2XSF(dump):
     from dump2xsf import dump2xsf
