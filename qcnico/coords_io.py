@@ -166,11 +166,11 @@ def read_xsf(filename,read_forces=True):
     else:
         return atoms, supercell
 
-def write_LAMMPS_data(atoms, supercell, filename="carbon.data",minimum_coords=None):
+def write_LAMMPS_data(atoms, supercell, filename="carbon.data",minimum_coords=None, sim_2d=False):
     # Backwards compatibility checks
     if np.all(minimum_coords == None):
         minimum_coords = np.zeros(3,dtype=float)
-    if supercell.shape[0] == 2:
+    if supercell.shape[0] == 2 and not sim_2d:
         supercell = np.hstack((supercell, [20])) # default max z coord is 20 angstroms
 
     f=open(filename,"w")
@@ -179,7 +179,12 @@ def write_LAMMPS_data(atoms, supercell, filename="carbon.data",minimum_coords=No
     f.write("1 atom types\n\n")
     f.write("%f %f xlo xhi\n" % (minimum_coords[0], supercell[0]))
     f.write("%f %f ylo yhi\n" % (minimum_coords[1], supercell[1]))
-    f.write("%f %f zlo zhi\n\n" % (minimum_coords[2], supercell[2]))
+    if not sim_2d:
+        f.write("%f %f zlo zhi\n\n" % (minimum_coords[2], supercell[2]))
+    
+    if sim_2d:
+        print('[write_LAMMPS_data] !! sim_2d is set to True: setting all z coords to 0 !!')
+        atoms[:,2] = 0
 
     f.write("Masses\n\n")
     f.write("1 12.0\n\n") 
