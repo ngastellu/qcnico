@@ -184,7 +184,7 @@ def MAC_ensemble_colours(clr_type='nature'):
     return clrs
 
 
-def fiddle_plot(data_frame, feature_names, color_violin='#EC1557', color_dots='black', jitter=0.01, ax=None, xlabel=None, ylabel=None, show=True):
+def fiddle_plot(data_frame, color_violin='#EC1557', color_dots='black', jitter=0.01, ax=None, xlabel=None, ylabel=None, show=True):
 
     if ax is None:
         fig, ax = plt.subplots()
@@ -192,7 +192,7 @@ def fiddle_plot(data_frame, feature_names, color_violin='#EC1557', color_dots='b
     # Violin distributions
     sns.violinplot(
         data=data_frame,
-        order=feature_names,
+        order=data_frame.columns,
         color=color_violin,  
         inner=None,
         cut=0,
@@ -202,7 +202,7 @@ def fiddle_plot(data_frame, feature_names, color_violin='#EC1557', color_dots='b
     # Individual observations
     sns.stripplot(
         data=data_frame,
-        order=feature_names,
+        order=data_frame.columns,
         color=color_dots,
         size=5,
         alpha=0.7,
