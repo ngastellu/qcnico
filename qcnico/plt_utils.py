@@ -1,6 +1,7 @@
 import numpy as np
 from matplotlib import rcParams, cm
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 def get_cm(vals, cmap_str, max_val=0.7, min_val=0.0):
@@ -183,6 +184,35 @@ def MAC_ensemble_colours(clr_type='nature'):
     return clrs
 
 
+def fiddle_plot(data_frame, feature_names, color_violin='#EC1557', color_dots='black', jitter=0.01, ax=None, xlabel=None, ylabel=None, show=True):
 
-    
-    
+    if ax is None:
+        fig, ax = plt.subplots()
+
+    # Violin distributions
+    sns.violinplot(
+        data=data_frame,
+        order=feature_names,
+        color=color_violin,  
+        inner=None,
+        cut=0,
+        ax=ax,
+    )
+
+    # Individual observations
+    sns.stripplot(
+        data=data_frame,
+        order=feature_names,
+        color=color_dots,
+        size=5,
+        alpha=0.7,
+        jitter=jitter,
+        ax=ax,
+    )
+
+    if xlabel is not None:
+        ax.set_xlabel(xlabel)
+    if ylabel is None:
+        ax.set_ylabel(ylabel)
+    if show:
+        plt.show()
